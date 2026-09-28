@@ -1,9 +1,9 @@
 import {expect,test} from '@playwright/test'
 
-test.beforeEach(async({page})=>{await page.goto('/#app');await page.evaluate(()=>{sessionStorage.setItem('nexara-demo-mode','true');localStorage.removeItem('nexara-demo-modules-v1');localStorage.removeItem('nexara-demo-widget');localStorage.removeItem('nexara-setup-dismissed')});await page.reload()})
+test.beforeEach(async({page})=>{await page.goto('/#app');await page.evaluate(()=>{sessionStorage.setItem('nexara-demo-mode','true');localStorage.removeItem('nexara-demo-modules-v1');localStorage.removeItem('nexara-demo-widget');localStorage.removeItem('nexara-setup-dismissed:demo')});await page.reload()})
 
 test('setup checklist and quick actions lead to real workflows',async({page})=>{
-  await expect(page.getByRole('heading',{name:'Launch your workspace'})).toBeVisible()
+  await expect(page.getByRole('heading',{name:'Finish your workspace'})).toBeVisible()
   await page.getByRole('button',{name:'＋ New'}).click()
   await page.getByRole('dialog',{name:'Quick actions'}).getByRole('button',{name:/New lead/}).click()
   await expect(page.getByRole('dialog',{name:/Add a lead/})).toBeVisible()

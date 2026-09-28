@@ -36,6 +36,7 @@ import type { LeadDraft, WorkspaceLead } from './features/crm/types'
 import {industryNames} from './config/industries'
 import {useUserProfile} from './features/profile/useUserProfile'
 import './ui-scale.css'
+import {ErrorBoundary} from './ErrorBoundary'
 const AnalyticsWorkbench = lazy(() => import('./Analytics').then(module => ({ default: module.Analytics })))
 
 function exportDemoLeads(leads:WorkspaceLead[]){
@@ -210,4 +211,4 @@ function Onboarding({onComplete}:{onComplete:(details:OnboardingDetails)=>Promis
 }
 function icon(item: string) { const map: Record<string, string> = { Overview:'⌂', Inbox:'▱', Leads:'♙', Pipeline:'⌁', Tasks:'✓', Contacts:'♧', Team:'♙', Automations:'◇', 'AI Assistant':'✦', Knowledge:'▤', Analytics:'▥', Integrations:'⌘', Billing:'¤' }; return map[item] ?? '·' }
 
-createRoot(document.getElementById('root')!).render(<StrictMode><App /></StrictMode>)
+createRoot(document.getElementById('root')!).render(<StrictMode><ErrorBoundary><App /></ErrorBoundary></StrictMode>)

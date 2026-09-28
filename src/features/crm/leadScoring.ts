@@ -14,3 +14,14 @@ export function scoreLead(lead:Partial<LeadDraft|WorkspaceLead>){
   if(lead.owner&&lead.owner!=='Unassigned')add('Ownership',5,'A team member owns the follow-up')
   return {score:Math.min(100,factors.reduce((sum,factor)=>sum+factor.points,0)),factors}
 }
+
+export function buildLeadBrief(lead:WorkspaceLead){
+  const risks:string[]=[]
+  if(!lead.email&&!lead.phone)risks.push('No direct contact method is recorded')
+  if(!lead.ownerId||lead.owner==='Unassigned')risks.push('No teammate owns the opportunity')
+  if(!lead.value||lead.value==='Not set')risks.push('Opportunity value is still unknown')
+  if(!lead.nextAction||lead.nextAction==='Make first contact')risks.push('The next step needs to be made specific')
+  const readiness=lead.score>=75?'High intent':lead.score>=50?'Developing':'Early stage'
+  const recommended=lead.stage==='Won'?'Begin customer handoff and onboarding':lead.stage==='Lost'?'Record the loss reason and schedule future nurture':!lead.ownerId||lead.owner==='Unassigned'?'Assign an owner before the next touch':!lead.email&&!lead.phone?'Capture a verified email address or phone number':lead.nextAction||'Schedule the next customer action'
+  return {readiness,risks,recommended,summary:`${lead.name} is a ${readiness.toLowerCase()} ${lead.interest.toLowerCase()} opportunity from ${lead.source}. The record is currently in ${lead.stage.toLowerCase()} with a score of ${lead.score}/100.`}
+}

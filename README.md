@@ -44,23 +44,25 @@ live AI providers, send messages, create subscriptions or modify workspace data.
 
 Copy `.env.example` to `.env.local`. Demo mode only needs `VITE_APP_URL`; authenticated production mode also needs `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY`. AI, WhatsApp and billing secrets remain server-only until their adapters are configured. Never expose Supabase secret keys or provider credentials through `VITE_` variables.
 
-## Product implementation plan
+## External go-live checklist
+
+The repository-side product is implemented and validated. Production launch still requires account-specific infrastructure that cannot be committed safely:
 
 1. Configure the deferred email sender and production application origin in Supabase.
-2. Complete provider-sandbox tests for OpenAI qualification and WhatsApp inbound/outbound delivery.
-3. Add OAuth/channel onboarding for integrations that require customer-owned credentials.
-4. Schedule `automation-retry` with the chosen production scheduler after configuring its shared secret.
-5. Complete end-to-end provider certification with production WhatsApp, email, AI and Stripe accounts.
+2. Add the OpenAI, WhatsApp and Stripe production credentials, then complete each provider's sandbox/certification flow.
+3. Configure customer-owned OAuth applications for channels that require delegated account access.
+4. Schedule `automation-retry` with the production scheduler after setting its shared secret.
+5. Apply all migrations through `0016_profile_pipeline_readiness.sql`, deploy the functions in `supabase/functions`, and run the documented production smoke tests.
 
 ## Product expansion
 
 The workspace now includes an embeddable website enquiry widget with tenant keys and origin allowlists, event-triggered automations with duplicate/delete controls, date-aware analytics, explainable lead scoring, persistent first-run setup progress, quick actions, notification preferences and operational database alerts. Live settings include profile, password, data export and owner-confirmed workspace deletion controls. Lead tables and conversation history use bounded page sizes so larger workspaces do not render an unbounded record set.
 
-Apply `0013_product_expansion.sql` and deploy `widget-inquiry` before enabling a live website widget. The generated snippet points to the deployed Supabase function and will reject requests from origins not saved in the widget configuration.
+Apply all migrations through `0016_profile_pipeline_readiness.sql` and deploy `widget-inquiry` before enabling a live website widget. The generated snippet points to the deployed Supabase function and will reject requests from origins not saved in the widget configuration.
 
 ## Demo data
 
-The current Acacia Properties workspace is clearly labelled demo data. Lead, contact, pipeline, note and follow-up changes persist in local browser storage so complete workflows can be tested safely. It does not represent a live customer or production integration; shared data still requires the Supabase adapter and credentials.
+The Nexara Demo Agency workspace is clearly labelled demo data. Lead, contact, pipeline, note and follow-up changes persist in local browser storage so complete workflows can be tested safely. It does not represent a live customer or production integration; shared data uses the configured Supabase project and credentials.
 
 ## CRM workflows available
 
