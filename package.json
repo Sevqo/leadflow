@@ -10,6 +10,9 @@
     "typecheck": "tsc -b",
     "test": "playwright test",
     "test:backend": "playwright test tests/backend-contract.spec.ts",
+    "supabase:start": "supabase start",
+    "supabase:reset": "supabase db reset --local",
+    "supabase:lint": "supabase db lint --local --level error",
     "preview": "vite preview"
   },
   "dependencies": {
@@ -28,6 +31,7 @@
     "@types/react-dom": "^19.3.0",
     "eslint": "^10.11.0",
     "globals": "^17.12.0",
+    "supabase": "^2.118.0",
     "typescript-eslint": "^8.70.1"
   }
 }

@@ -426,6 +426,10 @@ verify_jwt = false
 [functions.integration-check]
 verify_jwt = true
 
+# External platforms authenticate with the per-source x-nexara-source-key.
+[functions.source-ingest]
+verify_jwt = false
+
 # [edge_runtime.secrets]
 # secret_key = "env(SECRET_VALUE)"
 

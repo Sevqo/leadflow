@@ -38,4 +38,4 @@ The CRM service layer calls database functions for operations that span multiple
 5. Verify admins cannot remove or demote the final owner.
 6. Run the full application test suite against that environment.
 
-The repository is connected to production project `lgfnnlrkedzrnvnchash`. GitHub production deployment is enabled for `master`; migrations through `0005_profile_security.sql` have been applied successfully and Supabase Security Advisor reports no issues. Continue to use a disposable project for destructive migration and multi-tenant penetration tests before customer launch.
+The repository is connected to production project `lgfnnlrkedzrnvnchash`. As of September 28, 2026, migrations `0001` through `0018` are applied, all repository Edge Functions are deployed, and the Vault-backed automation retry scheduler is active. GitHub production deployment is enabled for `master`. Continue to use the local disposable Supabase stack for clean migration, schema-lint and multi-tenant penetration tests before each customer release.
