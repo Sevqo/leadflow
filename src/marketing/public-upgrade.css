@@ -1,0 +1,20 @@
+.public-site{--ink:#171c31;--muted:#5c6478;--line:#dfe2ed;background:#fafaf8}
+.public-nav{background:#fafaf8ed}
+.public-brand>span{background:linear-gradient(145deg,#6960f0,#3026b4);border-radius:10px;font-size:22px}
+.public-brand strong{font-size:20px;letter-spacing:-.04em}
+.public-brand small{font-size:9px;letter-spacing:.13em;color:#646b7e}
+.public-nav nav a,.public-footer a{color:#535c73;font-weight:600}
+.public-hero{position:relative}
+.public-hero::before{content:"";position:absolute;right:0;top:0;width:420px;height:420px;border-radius:50%;background:radial-gradient(circle,#d9d6ff8c,transparent 70%);pointer-events:none}
+.public-hero h1{position:relative}
+.public-grid article,.solution-cards article,.public-form,.contact-success{border-radius:20px;box-shadow:0 20px 45px #27366a0b}
+.public-callout{background:#171c31}
+.public-callout>p:not(.lf-kicker){color:#c5cae0}
+.public-callout .lf-button,.public-nav>.lf-button,.public-form>.lf-button{border-radius:100px;background:#4239d2;border:1px solid #4239d2;color:#fff;padding:12px 22px;display:inline-flex;align-items:center;justify-content:center;min-height:45px;font-weight:700;box-shadow:0 10px 24px #3328b634}
+.public-callout .lf-kicker{color:#aba6ff}
+.public-form input,.public-form textarea{border-color:#dfe2ed;border-radius:10px;background:#fafafe;color:#171c31;font-size:14px}
+.public-form input:focus,.public-form textarea:focus{outline:3px solid #4239d230;border-color:#4239d2}
+.public-form-tabs{background:#efeff8;border-radius:12px}
+.public-form-tabs .active{color:#4239d2}
+.solution-cards a{color:#4239d2}
+@media(max-width:760px){.public-hero::before{width:260px;height:260px}}

@@ -87,6 +87,22 @@ test('product demos respond to choices without changing workspace data', async (
   await expect(page.locator('.lf-live-report')).toHaveCount(0)
 })
 
+test('system architecture explains each connected stage', async ({ page }, info) => {
+  await page.goto('/')
+  const system = page.locator('#technology')
+  await expect(system.getByRole('heading', { name: 'From first signal to forward motion.' })).toBeVisible()
+  for (const [stage, result] of [
+    ['UNDERSTAND', 'LEAD QUALIFIED'],
+    ['ORCHESTRATE', 'FOLLOW-UP QUEUED'],
+    ['LEARN', 'OUTCOME RECORDED'],
+    ['CAPTURE', 'SOURCE ATTRIBUTED'],
+  ]) {
+    await system.getByRole('tab', { name: new RegExp(stage) }).click()
+    await expect(system.getByRole('tabpanel')).toContainText(result)
+  }
+  await system.screenshot({ path: info.outputPath('technology.png'), animations: 'disabled' })
+})
+
 test('FAQ, separate legal pages and keyboard controls', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' })
   await page.goto('/')

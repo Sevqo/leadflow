@@ -4,7 +4,7 @@ import {getWidgetConfig,saveWidgetConfig} from '../../services/workspaceAdmin'
 import type {WidgetConfigRow} from '../../types/database'
 
 const demoKey='nexara-demo-widget'
-const defaults=(organizationId:string):WidgetConfigRow=>({organization_id:organizationId,public_key:crypto.randomUUID(),enabled:false,brand_name:'Nexara Assistant',welcome_message:'Hi! What are you looking for today?',primary_color:'#6d5dfc',allowed_origins:[],updated_at:new Date().toISOString()})
+const defaults=(organizationId:string):WidgetConfigRow=>({organization_id:organizationId,public_key:crypto.randomUUID(),enabled:false,brand_name:'LeadFlow Assistant',welcome_message:'Hi! What are you looking for today?',primary_color:'#6d5dfc',allowed_origins:[],updated_at:new Date().toISOString()})
 export function WidgetBuilder({organizationId,notify}:{organizationId?:string;notify:(message:string)=>void}){
   const [config,setConfig]=useState<WidgetConfigRow>(()=>{try{return JSON.parse(localStorage.getItem(demoKey)??'null')??defaults('demo')}catch{return defaults('demo')}}),[origin,setOrigin]=useState(''),[saving,setSaving]=useState(false),[copied,setCopied]=useState(false)
   useEffect(()=>{if(organizationId)void getWidgetConfig(organizationId).then(value=>setConfig(value??defaults(organizationId)))},[organizationId])

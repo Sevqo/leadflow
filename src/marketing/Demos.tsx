@@ -4,7 +4,7 @@ import { demoLeads, heroSteps, qualification } from './content'
 import { useSequence, useReducedMotion } from './motion'
 
 export function DemoShell({title,children,className=''}:{title:string;children:ReactNode;className?:string}) {
-  return <div className={'lf-demo '+className}><div className="lf-demo-bar"><span className="lf-dot-logo" aria-hidden="true">N</span><strong>{title}</strong><span className="lf-demo-label">SIMULATED DEMO</span></div>{children}</div>
+  return <div className={'lf-demo '+className}><div className="lf-demo-bar"><span className="lf-dot-logo" aria-hidden="true">↗</span><strong>{title}</strong><span className="lf-demo-label">SIMULATED DEMO</span></div>{children}</div>
 }
 export function LeadCardDemo({stage='Qualified',compact=false}:{stage?:string;compact?:boolean}) {
   return <article className={'lf-lead-card '+(compact?'lf-compact':'')}><div className="lf-lead-identity"><span className="lf-avatar">JM</span><div><strong>James Mwangi</strong><small>Website enquiry · Summit Software</small></div><span className="lf-score">86</span></div><h4>CRM for a 25-person team</h4><p>This quarter · KSh 1.2M</p><div className="lf-lead-bottom"><span className="lf-badge">{stage}</span><span>Sarah · next: book demo</span></div></article>
@@ -25,7 +25,7 @@ export function HeroDemo() {
   }
   const reset=()=>{cancelAnimationFrame(frame.current);wrap.current?.style.setProperty('--rx','0deg');wrap.current?.style.setProperty('--ry','0deg')}
   useEffect(()=>()=>cancelAnimationFrame(frame.current),[])
-  return <div ref={scene.ref} className="lf-hero-scene"><div ref={wrap} className="lf-perspective" onPointerMove={pointer} onPointerLeave={reset}><DemoShell title="Nexara Demo / Multi-industry workspace"><div className="lf-hero-demo-grid">
+  return <div ref={scene.ref} className="lf-hero-scene"><div ref={wrap} className="lf-perspective" onPointerMove={pointer} onPointerLeave={reset}><DemoShell title="Sevqo Demo / Multi-industry workspace"><div className="lf-hero-demo-grid">
     <section className="lf-conversation-preview"><div className="lf-pane-title"><span className="lf-channel-dot"/>Website / omnichannel scenario <span>10:32</span></div><div className="lf-bubble customer"><small>James Mwangi</small>We need a CRM for our 25-person sales team.</div>
     <div className={'lf-bubble assistant '+(scene.step<1?'lf-concealed':'')}><small>✦ LeadFlow assistant</small>What budget are you considering, and when would you like to move?</div>
     <div className={'lf-bubble customer '+(scene.step<2?'lf-concealed':'')}>KSh 18–22M. In about three months.</div><div className={'lf-handoff '+(scene.step<6?'lf-concealed':'')}>✓ High-intent lead assigned to Sarah.<small>Conversation and qualification included.</small></div></section>

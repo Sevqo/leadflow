@@ -1,6 +1,6 @@
-# Nexara LeadFlow
+# Sevqo LeadFlow
 
-Nexara LeadFlow is a multi-tenant lead capture, qualification, CRM, automation and analytics platform for SMEs. The current product includes a polished responsive workspace, persistent browser-based demo CRM, authenticated live CRM, shared Inbox, Knowledge Base, AI Assistant settings, integration health, signed outbound webhooks, durable automation retries, persistent organization settings, lead and contact management, an interactive pipeline, lead activity timelines, global search, notifications, theme switching, analytics, and a motion-rich public landing experience.
+Sevqo LeadFlow is a multi-tenant lead capture, qualification, CRM, automation and analytics platform for SMEs. The current product includes a polished responsive workspace, persistent browser-based demo CRM, authenticated live CRM, shared Inbox, Knowledge Base, AI Assistant settings, integration health, signed outbound webhooks, durable automation retries, persistent organization settings, lead and contact management, an interactive pipeline, lead activity timelines, global search, notifications, theme switching, analytics, and a motion-rich public landing experience.
 
 ## Stack
 
@@ -62,7 +62,7 @@ Apply all migrations through `0016_profile_pipeline_readiness.sql` and deploy `w
 
 ## Demo data
 
-The Nexara Demo Agency workspace is clearly labelled demo data. Lead, contact, pipeline, note and follow-up changes persist in local browser storage so complete workflows can be tested safely. It does not represent a live customer or production integration; shared data uses the configured Supabase project and credentials.
+The Sevqo Demo Agency workspace is clearly labelled demo data. Lead, contact, pipeline, note and follow-up changes persist in local browser storage so complete workflows can be tested safely. It does not represent a live customer or production integration; shared data uses the configured Supabase project and credentials.
 
 ## CRM workflows available
 
@@ -75,4 +75,4 @@ The Nexara Demo Agency workspace is clearly labelled demo data. Lead, contact, p
 
 ## Repository
 
-The repository is maintained on the `master` branch at `cypskip-create/Nexara`.
+The repository is maintained on the `master` branch at `Sevqo/leadflow`.
