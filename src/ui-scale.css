@@ -1,5 +1,19 @@
 /* Readability and professional workspace finish. Loaded last. */
 .app { font-size: 115%; }
+.app{--primary:#3156d8;--primary-dark:#2443b3;--soft:#edf2ff;--line:#e3e8f2}
+.app.dark{--primary:#597be9;--primary-dark:#4669da;--soft:#263554;--line:#303e58}
+.app .brand-mark,.session-gate .brand-mark,.auth-brand .brand-mark{background:transparent url('/sevqo-mark.svg') center / contain no-repeat;color:transparent;font-size:0;box-shadow:none;border-radius:0}
+.app .brand-mark{width:33px;height:42px;flex:0 0 33px}
+.app .sidebar{background:var(--sidebar)}
+.app .card{border-radius:16px;box-shadow:0 5px 18px #1d31500a}
+.app.dark .card{box-shadow:none}
+.app .btn.primary{box-shadow:none}
+.app .btn,.app .nav-item,.app .icon-btn{transition:background-color .2s ease,color .2s ease,transform .2s ease}
+.app .btn:not(:disabled):hover{transform:translateY(-1px)}
+.app :is(button,input,select,textarea):focus-visible{outline:2px solid #5487ed;outline-offset:3px}
+.app .topbar{background:color-mix(in srgb,var(--card) 88%,transparent)}
+.app .nav-item.active{color:#264bc6}
+.app.dark .nav-item.active{color:#c4d2ff}
 .app .nav-item { font-size: 16px; }
 .app .nav-label { font-size: 11px; }
 .app .workspace strong,
@@ -86,6 +100,17 @@
 .app .automation-live-note p { overflow-wrap:anywhere; }
 
 .mobile-drawer-close { display:none; }
+
+@media (min-width:721px) and (max-width:900px){
+  .app .topbar{padding-inline:14px;gap:8px}
+  .app .breadcrumbs{min-width:0;overflow:hidden;white-space:nowrap}
+  .app .breadcrumbs span,.app .breadcrumbs b{display:none}
+  .app .breadcrumbs strong{overflow:hidden;text-overflow:ellipsis}
+  .app .top-actions{gap:5px;flex-shrink:0}
+  .app .search{width:38px;font-size:0;padding:5px}
+  .app .search span{margin:0}
+  .app .search kbd{display:none}
+}
 
 @media(max-width:720px){
   .app .page-heading h1,.app .empty-page h1{font-size:29px}

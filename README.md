@@ -49,10 +49,12 @@ Copy `.env.example` to `.env.local`. Demo mode only needs `VITE_APP_URL`; authen
 The repository-side product is implemented and validated. Production launch still requires account-specific infrastructure that cannot be committed safely:
 
 1. Configure the deferred email sender and production application origin in Supabase.
-2. Add the OpenAI, WhatsApp and Stripe production credentials, then complete each provider's sandbox/certification flow.
+2. Add server-side AI and channel credentials, then complete each provider's sandbox/certification flow. Select and integrate a payment provider that can onboard the business in Kenya; Stripe credentials alone are not a valid launch plan.
 3. Configure customer-owned OAuth applications for channels that require delegated account access.
 4. Schedule `automation-retry` with the production scheduler after setting its shared secret.
 5. Apply all migrations through `0016_profile_pipeline_readiness.sql`, deploy the functions in `supabase/functions`, and run the documented production smoke tests.
+
+See [product readiness audit](docs/product-readiness-audit.md) for what the workspace now verifies and what still needs live end-to-end evidence before customer shipment.
 
 ## Product expansion
 

@@ -148,6 +148,7 @@ test('global search, notifications, help and theme are operational', async ({ pa
   await expect(page.getByRole('button', { name: 'Notifications' }).locator('i')).toHaveCount(0)
   await page.locator('.sidebar-bottom').getByRole('button', { name: 'Help' }).click()
   await expect(page.getByRole('heading', { name: 'Help centre' })).toBeVisible()
+  await page.getByRole('button', { name: /Create and qualify a lead/ }).click()
   await page.getByRole('button', { name: 'Open Leads' }).click()
   await expect(page.getByRole('heading', { name: 'Leads' })).toBeVisible()
   await page.getByRole('button', { name: 'Toggle theme' }).click()

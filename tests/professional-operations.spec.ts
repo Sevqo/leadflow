@@ -43,8 +43,8 @@ test('workflow studio loads a playbook and persists multiple steps',async({page}
 
 test('analytics switches between executive, acquisition and team reports',async({page})=>{
   await page.locator('.sidebar nav').getByRole('button',{name:'Analytics'}).click()
-  await expect(page.getByText('Weighted forecast')).toBeVisible()
-  await expect(page.getByRole('heading',{name:'Funnel leakage'})).toBeVisible()
+  await expect(page.getByText('Weighted forecast',{exact:true})).toBeVisible()
+  await expect(page.getByRole('heading',{name:'Current stage distribution'})).toBeVisible()
   await page.getByRole('button',{name:'Acquisition & funnel'}).click()
   await expect(page.getByRole('heading',{name:'Source quality scorecard'})).toBeVisible()
   await page.getByRole('button',{name:'Team performance'}).click()
