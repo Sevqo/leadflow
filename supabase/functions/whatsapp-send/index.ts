@@ -36,7 +36,7 @@ Deno.serve(async request=>{
     const {data:message,error:messageError}=await admin.from('messages').insert({organization_id:conversation.organization_id,conversation_id:conversation.id,sender_type:'HUMAN',sender_id:user.id,body,external_id:externalId,created_at:sentAt}).select().single()
     if(messageError)throw new Error('Message was sent but could not be added to conversation history.')
     await Promise.all([
-      client.from('conversations').update({last_message_at:sentAt,updated_at:sentAt,assigned_to:user.id,status:'OPEN'}).eq('id',conversation.id).eq('organization_id',conversation.organization_id),
+      client.from('conversations').update({last_message_at:sentAt,updated_at:sentAt,assigned_to:user.id,status:'OPEN',handling_mode:'HUMAN'}).eq('id',conversation.id).eq('organization_id',conversation.organization_id),
       admin.from('audit_events').insert({organization_id:conversation.organization_id,actor_id:user.id,event_type:'whatsapp_message_sent',entity_type:'conversation',entity_id:conversation.id,metadata:{message_id:message.id,external_id:externalId}}),
     ])
     return json({message})

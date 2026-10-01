@@ -156,6 +156,33 @@
   .app .team-row>select,.app .team-row>.role-pill,.app .team-row>.text-btn{grid-column:2;width:100%;justify-self:stretch;text-align:left}
 }
 
+.app .sidebar{min-height:0;max-height:100dvh;overflow-y:auto;overscroll-behavior:contain}
+.app .sidebar nav{display:block;flex:0 0 auto}
+.app .nav-group{margin-bottom:13px}
+.app .nav-group .nav-label{margin-bottom:5px}
+.app .nav-group .nav-item{width:100%}
+.app .workspace-switch{width:calc(100% - 12px);margin:-13px 6px 20px;padding:9px;border:1px solid var(--line);border-radius:9px;background:var(--card);color:var(--ink);font-size:13px}
+.app .sidebar-bottom{margin-top:auto}
+.workspace-picker{max-width:760px!important;margin:auto;padding-top:12vh!important}.workspace-picker h1{font-size:clamp(28px,4vw,46px);margin:0 0 10px}.workspace-picker>p{color:var(--muted)}.workspace-picker-list{display:grid;gap:12px;margin:30px 0}.workspace-picker-list button{display:flex;justify-content:space-between;gap:20px;align-items:center;padding:20px;text-align:left;color:var(--ink)}.workspace-picker-list button:hover{border-color:var(--primary)}.workspace-picker-list span{color:var(--primary)}
+.inbox-mobile-back,.inbox-mobile-details,.inbox-mobile-details-close{display:none}
+.inbox-send-error{color:#ac3232;font-size:12px;margin:4px 0}
+.app .composer-input textarea{height:auto;min-height:54px;max-height:150px;resize:vertical;font-size:13px}
+.app .composer-input button:disabled{opacity:.55;cursor:not-allowed}
+@media(max-width:720px){
+  .app .inbox-layout{height:calc(100dvh - 205px);min-height:450px;overflow:hidden}
+  .app .conversation-list{display:block;max-height:none;height:100%;border-bottom:0;overflow:auto}
+  .app .conversation-main{display:none;min-height:0;height:100%;grid-template-rows:auto minmax(0,1fr) auto}
+  .app .inbox-layout.inbox-thread-open .conversation-list{display:none}
+  .app .inbox-layout.inbox-thread-open .conversation-main{display:grid}
+  .app .inbox-layout .conversation-context{display:none}
+  .app .inbox-layout.inbox-details-open .conversation-context{display:block;position:fixed;inset:0 0 0 auto;width:min(360px,100vw);z-index:30;overflow:auto;box-shadow:-20px 0 60px #0003;padding-bottom:env(safe-area-inset-bottom)}
+  .inbox-mobile-back,.inbox-mobile-details,.inbox-mobile-details-close{display:inline-flex;align-items:center;justify-content:center;border:0;background:transparent;color:var(--ink);padding:8px}
+  .inbox-mobile-back{font-size:23px}.inbox-mobile-details{color:var(--primary);font-weight:700}
+  .inbox-mobile-details-close{font-size:25px;margin-left:auto}
+  .app .conversation-head{gap:5px;padding:10px;flex-wrap:wrap}.app .conversation-head .lead-cell{min-width:0;flex:1}.app .conversation-head select{font-size:12px}
+  .app .message-history{min-height:0;overflow:auto;overscroll-behavior:contain}.app .composer{padding-bottom:max(12px,env(safe-area-inset-bottom))}
+}
+
 @media(max-width:420px){
   .app .automation-tabs button{padding-inline:10px;font-size:12px}
   .app .conversation-list{max-height:250px}

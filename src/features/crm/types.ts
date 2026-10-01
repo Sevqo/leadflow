@@ -50,7 +50,7 @@ export type LeadAttribution = {
 
 export type OwnerOption = { id: string; label: string }
 export type TaskPriority = 'Low'|'Normal'|'High'|'Urgent'
-export type WorkspaceTask = { id:string; leadId:string|null; leadName:string; title:string; description:string; dueAt:string|null; status:'Open'|'Completed'|'Cancelled'; assignee:string; assigneeId:string|null; priority:TaskPriority }
+export type WorkspaceTask = { id:string; leadId:string|null; projectId?:string|null; leadName:string; title:string; description:string; dueAt:string|null; status:'Open'|'Completed'|'Cancelled'; assignee:string; assigneeId:string|null; priority:TaskPriority }
 export type TaskDraft = Pick<WorkspaceTask,'title'|'description'|'dueAt'|'leadId'|'assigneeId'|'priority'>
 
 export type WorkspaceContact = {

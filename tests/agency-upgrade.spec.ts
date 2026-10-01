@@ -1,0 +1,81 @@
+import {expect,test} from '@playwright/test'
+import {readFile} from 'node:fs/promises'
+import {resolve} from 'node:path'
+
+test.beforeEach(async({page})=>{
+  await page.goto('/#app')
+  await page.evaluate(()=>sessionStorage.setItem('nexara-demo-mode','true'))
+  await page.reload()
+})
+
+test('grouped agency navigation opens distinct delivery areas without fake demo records',async({page})=>{
+  const nav=page.locator('.sidebar nav')
+  await expect(nav.getByText('Clients',{exact:true}).first()).toBeVisible()
+  await nav.getByRole('button',{name:'Clients'}).click()
+  await expect(page.getByRole('heading',{name:'Clients'})).toBeVisible()
+  await expect(page.getByText('Demo mode does not fabricate clients, systems, runs, or costs.')).toBeVisible()
+  await nav.getByRole('button',{name:'Systems'}).click()
+  await expect(page.getByRole('heading',{name:'Systems'})).toBeVisible()
+  await nav.getByRole('button',{name:'Operations'}).click()
+  await expect(page.getByRole('heading',{name:'Run center'})).toBeVisible()
+  await nav.getByRole('button',{name:'Activity'}).click()
+  await expect(page.getByRole('heading',{name:'Activity'})).toBeVisible()
+  await expect(page.getByText('Demo mode does not fabricate an audit trail.')).toBeVisible()
+})
+
+test('team chat exposes room navigation and mobile back control',async({page})=>{
+  await page.setViewportSize({width:390,height:740})
+  await page.getByRole('button',{name:'Open navigation'}).click()
+  await page.locator('.sidebar nav').getByRole('button',{name:'Team Chat'}).click()
+  await expect(page.getByRole('button',{name:'Back to conversations'})).toBeVisible()
+  await page.getByRole('button',{name:'Back to conversations'}).click()
+  await expect(page.getByText('CHANNELS',{exact:true})).toBeVisible()
+  await page.getByRole('button',{name:'# general'}).click()
+  await expect(page.getByLabel('Message your team')).toBeVisible()
+})
+
+test('agency schema scopes operational records and private costs to authenticated roles',async()=>{
+  const root=resolve(import.meta.dirname,'..')
+  const agency=await readFile(resolve(root,'supabase/migrations/0021_agency_operations.sql'),'utf8')
+  const chat=await readFile(resolve(root,'supabase/migrations/0022_team_conversations.sql'),'utf8')
+  for(const table of ['agency_clients','agency_projects','project_milestones','client_systems','agency_ai_agents','agency_approval_requests','agency_cost_entries','client_portal_members','client_portal_updates'])expect(agency).toContain(`alter table public.${table} enable row level security`)
+  expect(agency).toContain('create policy agency_cost_entries_read')
+  expect(agency).toContain("array['OWNER','ADMIN']::public.member_role[]")
+  expect(agency).toContain('public.is_client_portal_member(target_client)')
+  expect(agency).toContain('create function public.list_my_client_portal_updates')
+  expect(agency).toContain('create policy client_portal_updates_read on public.client_portal_updates for select to authenticated using (public.is_org_member(organization_id))')
+  expect(agency).toContain('public.can_access_conversation(target_conversation,target_org)')
+  expect(agency).toContain('create function public.add_conversation_note')
+  expect(agency).toContain('create function public.set_conversation_handling')
+  expect(agency).not.toContain('grant select,insert,update on public.agency_approval_requests')
+  expect(chat).toContain('drop policy team_messages_read')
+  expect(chat).toContain('public.can_read_team_room(room_id)')
+  expect(chat).toContain("r.kind='CHANNEL' or exists")
+  expect(chat).toContain('create trigger create_general_team_room_after_organization')
+  const projectTasks=await readFile(resolve(root,'supabase/migrations/0023_project_tasks.sql'),'utf8')
+  const taskService=await readFile(resolve(root,'src/services/tasks.ts'),'utf8')
+  const invitations=await readFile(resolve(root,'supabase/migrations/0024_invitation_role_guards.sql'),'utf8')
+  const invitationFunction=await readFile(resolve(root,'supabase/functions/team-invitations/index.ts'),'utf8')
+  expect(projectTasks).toContain('tasks_project_same_organization')
+  expect(taskService).toContain('created_by:user.id')
+  expect(invitations).toContain('email_confirmed_at is not null')
+  expect(invitations).toContain('prevent_last_owner_demotion_before_update')
+  expect(invitationFunction).toContain("requireSecret('APP_ORIGIN')")
+})
+
+test('client portal has a dedicated sign-in boundary and no staff workspace content',async({page})=>{
+  await page.goto('/portal')
+  await expect(page.getByRole('heading',{name:'Your project updates, in one place.'})).toBeVisible()
+  await expect(page.getByRole('heading',{name:'Sign in'})).toBeVisible()
+  await expect(page.getByRole('button',{name:'Sign in'})).toBeVisible()
+  await expect(page.locator('.sidebar')).toHaveCount(0)
+})
+
+test('billing checkout stays unavailable until a supported provider is explicitly enabled',async()=>{
+  const root=resolve(import.meta.dirname,'..')
+  const billing=await readFile(resolve(root,'src/features/billing/BillingPage.tsx'),'utf8')
+  const example=await readFile(resolve(root,'.env.example'),'utf8')
+  expect(example).toContain('VITE_BILLING_PROVIDER_READY=false')
+  expect(billing).toContain("import.meta.env.VITE_BILLING_PROVIDER_READY==='true'")
+  expect(billing).toContain('Checkout is disabled until the business connects and verifies a supported payment provider.')
+})

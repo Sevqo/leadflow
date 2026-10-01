@@ -9,12 +9,8 @@ export function useTeamChatUnread(organizationId:string|undefined,userId:string|
     const client=supabase
     let cancelled=false
     const refresh=async()=>{
-      const {data:receipt,error}=await client.from('team_chat_reads').select('last_read_at').eq('organization_id',organizationId).eq('user_id',userId).maybeSingle()
-      if(error||cancelled)return
-      let query=client.from('team_messages').select('id',{count:'exact',head:true}).eq('organization_id',organizationId).neq('sender_id',userId)
-      if(receipt?.last_read_at)query=query.gt('created_at',receipt.last_read_at)
-      const result=await query
-      if(!cancelled&&!result.error)setUnread(result.count??0)
+      const {data,error}=await client.rpc('team_room_unread_counts',{target_org:organizationId})
+      if(!cancelled&&!error)setUnread((data??[]).reduce((sum,item)=>sum+Number(item.unread_count),0))
     }
     void refresh()
     const channel=client.channel(`team-chat-unread:${organizationId}:${userId}`)

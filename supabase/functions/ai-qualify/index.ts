@@ -28,7 +28,7 @@ Deno.serve(async request=>{
     const {data:conversation,error:conversationError}=await client.from('conversations').select('id,organization_id,contact_id').eq('id',conversationId).single()
     if(conversationError||!conversation)throw new Error('Conversation not found or access denied.')
     const [{data:messages,error:messageError},{data:config}]=await Promise.all([
-      client.from('messages').select('sender_type,body,created_at').eq('conversation_id',conversationId).order('created_at',{ascending:true}).limit(40),
+      client.from('messages').select('sender_type,body,created_at').eq('conversation_id',conversationId).eq('is_internal_note',false).order('created_at',{ascending:true}).limit(40),
       client.from('ai_configs').select('custom_instructions,qualification_fields').eq('organization_id',conversation.organization_id).maybeSingle(),
     ])
     if(messageError)throw new Error('Unable to load conversation messages.')

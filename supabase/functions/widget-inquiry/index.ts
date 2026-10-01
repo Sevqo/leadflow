@@ -30,7 +30,7 @@ Deno.serve(async request=>{
     if(!contact){const result=await admin.from('contacts').insert({organization_id:config.organization_id,name,email,tags:['Website widget']}).select().single();if(result.error)throw result.error;contact=result.data}
     let {data:lead}=await admin.from('leads').select('*').eq('organization_id',config.organization_id).eq('contact_id',contact.id).is('archived_at',null).maybeSingle()
     if(!lead){const result=await admin.from('leads').insert({organization_id:config.organization_id,contact_id:contact.id,interest:message.slice(0,240),source:'Website widget',stage:'NEW',score:35,next_action:'Review widget enquiry'}).select().single();if(result.error)throw result.error;lead=result.data}
-    const {data:conversation,error:conversationError}=await admin.from('conversations').insert({organization_id:config.organization_id,contact_id:contact.id,channel:'WEBSITE',status:'OPEN',last_message_at:new Date().toISOString()}).select().single();if(conversationError)throw conversationError
+    const {data:conversation,error:conversationError}=await admin.from('conversations').insert({organization_id:config.organization_id,contact_id:contact.id,channel:'WEBSITE',status:'OPEN',handling_mode:'AI',last_message_at:new Date().toISOString()}).select().single();if(conversationError)throw conversationError
     await admin.from('messages').insert({organization_id:config.organization_id,conversation_id:conversation.id,sender_type:'CUSTOMER',body:message})
     let reply='Thanks — your enquiry was received. Our team will follow up.'
     const apiKey=Deno.env.get('OPENAI_API_KEY')
