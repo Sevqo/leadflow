@@ -27,6 +27,8 @@ type WidgetConfig = { organization_id:string; public_key:string; enabled:boolean
 type NotificationPreference = { organization_id:string; user_id:string; in_app:boolean; email_qualified_lead:boolean; email_assignment:boolean; email_follow_up:boolean; email_automation_failure:boolean; email_integration_failure:boolean; updated_at:string }
 type PlanLimit = { plan:'STARTER'|'GROWTH'|'PRO'; members:number; monthly_leads:number; active_automations:number; knowledge_items:number }
 type LeadSource = { id:string; organization_id:string; name:string; platform:string; status:'ACTIVE'|'PAUSED'; secret_hash:string; created_by:string|null; last_received_at:string|null; created_at:string; updated_at:string }
+type TeamMessage = { id:string; organization_id:string; sender_id:string|null; sender_name:string; body:string; created_at:string }
+type TeamChatRead = { organization_id:string; user_id:string; last_read_at:string }
 
 type Table<Row, Insert = Partial<Row>, Update = Partial<Insert>> = { Row:Row; Insert:Insert; Update:Update; Relationships:[] }
 
@@ -58,6 +60,8 @@ export interface Database {
       notification_preferences: Table<NotificationPreference, Pick<NotificationPreference,'organization_id'|'user_id'> & Partial<NotificationPreference>>
       plan_limits: Table<PlanLimit,PlanLimit>
       lead_sources: Table<LeadSource,Pick<LeadSource,'organization_id'|'name'|'platform'|'secret_hash'> & Partial<LeadSource>>
+      team_messages: Table<TeamMessage,Pick<TeamMessage,'organization_id'|'sender_name'|'body'> & Partial<TeamMessage>>
+      team_chat_reads: Table<TeamChatRead,TeamChatRead>
     }
     Views: Record<string, never>
     Functions: {
@@ -83,6 +87,7 @@ export interface Database {
       create_lead_source: { Args:{ target_org:string; source_name:string; source_platform:string }; Returns:Json }
       rotate_lead_source_key: { Args:{ target_org:string; target_source:string }; Returns:string }
       update_current_profile: { Args:{ profile_full_name:string; profile_username:string }; Returns:Profile }
+      send_team_message: { Args:{ target_org:string; message_body:string }; Returns:TeamMessage }
     }
     Enums: { member_role:MemberRole; lead_stage:DatabaseLeadStage }
     CompositeTypes: Record<string, never>
@@ -113,3 +118,5 @@ export type WidgetConfigRow = WidgetConfig
 export type LeadSourceRow = Omit<LeadSource,'secret_hash'>
 export type NotificationPreferenceRow = NotificationPreference
 export type PlanLimitRow = PlanLimit
+export type TeamMessageRow = TeamMessage
+export type TeamChatReadRow = TeamChatRead

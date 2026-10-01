@@ -11,7 +11,7 @@ async function openPage(page:import('@playwright/test').Page,name:string,bottom=
   const toggle=page.getByRole('button',{name:'Open navigation'})
   if(await toggle.isVisible())await toggle.click()
   const drawer=page.getByLabel('Workspace navigation')
-  const button=bottom?drawer.locator('.sidebar-bottom').getByRole('button',{name}):drawer.locator('nav').getByRole('button',{name})
+  const button=bottom?drawer.locator('.sidebar-bottom').getByRole('button',{name,exact:true}):drawer.locator('nav').getByRole('button',{name,exact:true})
   await button.scrollIntoViewIfNeeded()
   await button.click()
 }
@@ -58,7 +58,8 @@ test('team roster and automation tabs fit phone and desktop layouts',async({page
 })
 
 test('every workspace module avoids document-level phone overflow',async({page})=>{
-  const modules=['Overview','Inbox','Leads','Pipeline','Tasks','Contacts','Team','Automations','AI Assistant','Knowledge','Analytics','Integrations','Billing']
+  test.setTimeout(90_000)
+  const modules=['Overview','Inbox','Leads','Pipeline','Tasks','Contacts','Team','Team Chat','Automations','AI Assistant','Knowledge','Analytics','Integrations','Billing']
   for(const width of [320,390,430]){
     await page.setViewportSize({width,height:740})
     for(const name of modules){
