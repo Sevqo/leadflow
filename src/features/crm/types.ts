@@ -17,6 +17,7 @@ export type WorkspaceLead = {
   company: string
   interest: string
   source: string
+  attribution?: LeadAttribution
   stage: LeadStage
   score: number
   value: string
@@ -29,6 +30,22 @@ export type WorkspaceLead = {
   notes: TimelineEntry[]
   customFields: Record<string,string>
   archived?: boolean
+}
+
+export type LeadAttribution = {
+  platform?: string
+  campaignId?: string
+  campaignName?: string
+  adSetId?: string
+  adSetName?: string
+  adId?: string
+  adName?: string
+  formId?: string
+  formName?: string
+  utmSource?: string
+  utmMedium?: string
+  utmCampaign?: string
+  utmContent?: string
 }
 
 export type OwnerOption = { id: string; label: string }

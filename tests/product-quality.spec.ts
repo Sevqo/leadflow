@@ -30,6 +30,31 @@ test('analytics exposes a dated trend, quality filters, and method',async({page}
   await expect(page.getByText(/Weighted forecast applies a fixed probability/)).toBeVisible()
 })
 
+test('mobile analytics keeps all report tabs usable and shows ad attribution',async({page})=>{
+  await page.setViewportSize({width:390,height:620})
+  await page.locator('.mobile-nav-toggle').click()
+  await page.locator('.sidebar nav').getByRole('button',{name:'Analytics'}).click()
+  const tabs=page.getByRole('tablist',{name:'Analytics reports'})
+  await expect(tabs.getByRole('tab')).toHaveCount(3)
+  const fits=await tabs.evaluate(element=>element.scrollWidth<=element.clientWidth+1)
+  expect(fits).toBe(true)
+  await tabs.getByRole('tab',{name:'Acquisition & funnel'}).click()
+  await expect(page.getByRole('heading',{name:'Campaign performance'})).toBeVisible()
+  await expect(page.getByRole('heading',{name:'Ad performance'})).toBeVisible()
+  await page.getByLabel('Campaign',{exact:true}).selectOption({label:'September homes · WhatsApp · demo-campaign-1'})
+  await page.getByLabel('Ad',{exact:true}).selectOption({label:'Lavington homes · WhatsApp · demo-ad-1'})
+  await expect(page.locator('.report-table').last()).toContainText('Aisha Njeri')
+})
+
+test('lead profile identifies the campaign and ad that supplied a lead',async({page})=>{
+  await page.locator('.sidebar nav').getByRole('button',{name:'Leads'}).click()
+  await page.getByRole('button',{name:/Aisha Njeri/}).first().click()
+  const profile=page.getByRole('dialog',{name:'Aisha Njeri'})
+  await expect(profile.getByRole('heading',{name:'Acquisition provenance'})).toBeVisible()
+  await expect(profile).toContainText('September homes')
+  await expect(profile).toContainText('Lavington homes')
+})
+
 test('workflow preflight blocks invalid actions and previews unsaved builder safely',async({page})=>{
   await page.locator('.sidebar nav').getByRole('button',{name:'Automations'}).click()
   await page.getByLabel('Workflow action').selectOption('create_task')

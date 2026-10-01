@@ -6,7 +6,7 @@ import { listOrganizationMembers } from '../../services/organizations'
 import { cancelTask as removeTask, completeTask as markTaskComplete, createTask as saveNewTask, listTasks, updateTask as saveTask } from '../../services/tasks'
 import { runTriggeredAutomations } from '../../services/automations'
 import type { ContactRow, DatabaseLeadStage, LeadActivityRow, LeadRow, TaskRow } from '../../types/database'
-import type { ContactDraft, LeadDraft, LeadStage, OwnerOption, TaskDraft, TimelineEntry, WorkspaceContact, WorkspaceLead, WorkspaceTask } from './types'
+import type { ContactDraft, LeadAttribution, LeadDraft, LeadStage, OwnerOption, TaskDraft, TimelineEntry, WorkspaceContact, WorkspaceLead, WorkspaceTask } from './types'
 
 const stageToDatabase:Record<LeadStage,DatabaseLeadStage>={New:'NEW',Qualified:'QUALIFIED',Contacted:'CONTACTED',Meeting:'MEETING',Negotiation:'NEGOTIATION',Won:'WON',Lost:'LOST'}
 const stageFromDatabase:Record<DatabaseLeadStage,LeadStage>={NEW:'New',QUALIFIED:'Qualified',CONTACTED:'Contacted',MEETING:'Meeting',NEGOTIATION:'Negotiation',WON:'Won',LOST:'Lost'}
@@ -28,6 +28,15 @@ function activityLabel(date:string){
   return new Date(date).toLocaleDateString()
 }
 function customFields(qualification:LeadRow['qualification']){if(!qualification||typeof qualification!=='object'||Array.isArray(qualification))return {};const fields=qualification.custom_fields;if(!fields||typeof fields!=='object'||Array.isArray(fields))return {};return Object.fromEntries(Object.entries(fields).filter((entry):entry is [string,string]=>typeof entry[1]==='string'))}
+function attribution(qualification:LeadRow['qualification']):LeadAttribution|undefined{
+  if(!qualification||typeof qualification!=='object'||Array.isArray(qualification))return undefined
+  const raw=qualification.attribution&&typeof qualification.attribution==='object'&&!Array.isArray(qualification.attribution)?qualification.attribution:{}
+  const metadata=qualification.metadata&&typeof qualification.metadata==='object'&&!Array.isArray(qualification.metadata)?qualification.metadata:{}
+  const aliases:Record<keyof LeadAttribution,string[]>={platform:['platform'],campaignId:['campaignId','campaign_id'],campaignName:['campaignName','campaign_name','campaign'],adSetId:['adSetId','ad_set_id','adset_id'],adSetName:['adSetName','ad_set_name','adset_name'],adId:['adId','ad_id'],adName:['adName','ad_name'],formId:['formId','form_id'],formName:['formName','form_name'],utmSource:['utmSource','utm_source'],utmMedium:['utmMedium','utm_medium'],utmCampaign:['utmCampaign','utm_campaign'],utmContent:['utmContent','utm_content']}
+  const result:LeadAttribution={}
+  for(const [field,keys] of Object.entries(aliases) as [keyof LeadAttribution,string[]][]){const value=keys.map(key=>raw[key]??metadata[key]??(field==='platform'?qualification.platform:undefined)).find(value=>typeof value==='string'&&value.trim());if(typeof value==='string')result[field]=value.trim()}
+  return Object.keys(result).length?result:undefined
+}
 
 export function useSupabaseWorkspaceData(organizationId:string|undefined,enabled:boolean){
   const [rows,setRows]=useState<LeadRow[]>([])
@@ -78,7 +87,7 @@ export function useSupabaseWorkspaceData(organizationId:string|undefined,enabled
 
   const mappedLeads=useMemo<WorkspaceLead[]>(()=>rows.map(lead=>{
     const contact=lead.contact_id?contactsById.get(lead.contact_id):undefined
-    return {id:lead.id,contactId:lead.contact_id,name:contact?.name??'Unnamed lead',email:contact?.email??'',phone:contact?.phone??'',company:contact?.company??'',interest:lead.interest??'No interest recorded',source:lead.source??'Manual',stage:stageFromDatabase[lead.stage],score:lead.score,value:money(lead.estimated_value),owner:lead.owner_id?ownerNames.get(lead.owner_id)??'Workspace member':'Unassigned',ownerId:lead.owner_id,tags:contact?.tags??[],customFields:customFields(lead.qualification),createdAt:lead.created_at,lastActivity:activityLabel(lead.updated_at),nextAction:lead.next_action??'Make first contact',notes:activitiesByLead.get(lead.id)??[],archived:Boolean(lead.archived_at)}
+    return {id:lead.id,contactId:lead.contact_id,name:contact?.name??'Unnamed lead',email:contact?.email??'',phone:contact?.phone??'',company:contact?.company??'',interest:lead.interest??'No interest recorded',source:lead.source??'Manual',attribution:attribution(lead.qualification),stage:stageFromDatabase[lead.stage],score:lead.score,value:money(lead.estimated_value),owner:lead.owner_id?ownerNames.get(lead.owner_id)??'Workspace member':'Unassigned',ownerId:lead.owner_id,tags:contact?.tags??[],customFields:customFields(lead.qualification),createdAt:lead.created_at,lastActivity:activityLabel(lead.updated_at),nextAction:lead.next_action??'Make first contact',notes:activitiesByLead.get(lead.id)??[],archived:Boolean(lead.archived_at)}
   }),[activitiesByLead,contactsById,ownerNames,rows])
   const leads=useMemo(()=>mappedLeads.filter(lead=>!lead.archived),[mappedLeads])
   const contacts=useMemo<WorkspaceContact[]>(()=>contactRows.map(contact=>{
