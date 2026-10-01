@@ -1,7 +1,8 @@
 import type {LeadSourceRow} from '../types/database'
 import {requireSupabase,throwServiceError} from './api'
 
-export async function listLeadSources(organizationId:string):Promise<LeadSourceRow[]>{const {data,error}=await requireSupabase().from('lead_sources').select('*').eq('organization_id',organizationId).order('created_at',{ascending:false});if(error)throwServiceError(error,'Unable to load inbound sources.');return data??[]}
+const publicFields='id,organization_id,name,platform,status,created_by,last_received_at,created_at,updated_at'
+export async function listLeadSources(organizationId:string):Promise<LeadSourceRow[]>{const {data,error}=await requireSupabase().from('lead_sources').select(publicFields).eq('organization_id',organizationId).order('created_at',{ascending:false});if(error)throwServiceError(error,'Unable to load inbound sources.');return data??[]}
 export async function createLeadSource(organizationId:string,name:string,platform:string){const {data,error}=await requireSupabase().rpc('create_lead_source',{target_org:organizationId,source_name:name,source_platform:platform});if(error)throwServiceError(error,'Unable to create inbound source.');return data as unknown as {source:LeadSourceRow;token:string}}
 export async function rotateLeadSourceKey(organizationId:string,sourceId:string){const {data,error}=await requireSupabase().rpc('rotate_lead_source_key',{target_org:organizationId,target_source:sourceId});if(error)throwServiceError(error,'Unable to rotate the source key.');return String(data)}
 export async function setLeadSourceStatus(organizationId:string,sourceId:string,status:LeadSourceRow['status']){const {error}=await requireSupabase().from('lead_sources').update({status,updated_at:new Date().toISOString()}).eq('id',sourceId).eq('organization_id',organizationId);if(error)throwServiceError(error,'Unable to update the source.')}

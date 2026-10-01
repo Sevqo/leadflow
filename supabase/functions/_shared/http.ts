@@ -1,6 +1,6 @@
 export const corsHeaders={
   'Access-Control-Allow-Origin':Deno.env.get('APP_ORIGIN')??'http://localhost:5173',
-  'Access-Control-Allow-Headers':'authorization, x-client-info, apikey, content-type, x-nexara-source-key',
+  'Access-Control-Allow-Headers':'authorization, x-client-info, apikey, content-type, x-leadflow-source-key, x-nexara-source-key',
   'Access-Control-Allow-Methods':'POST, OPTIONS',
   'Vary':'Origin',
 }

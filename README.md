@@ -52,7 +52,7 @@ The repository-side product is implemented and validated. Production launch stil
 2. Add server-side AI and channel credentials, then complete each provider's sandbox/certification flow. Select and integrate a payment provider that can onboard the business in Kenya; Stripe credentials alone are not a valid launch plan.
 3. Configure customer-owned OAuth applications for channels that require delegated account access.
 4. Schedule `automation-retry` with the production scheduler after setting its shared secret.
-5. Apply all migrations through `0016_profile_pipeline_readiness.sql`, deploy the functions in `supabase/functions`, and run the documented production smoke tests.
+5. Apply all migrations through `0019_lead_source_credential_hardening.sql`, deploy the functions in `supabase/functions`, and run the documented production smoke tests.
 
 See [product readiness audit](docs/product-readiness-audit.md) for what the workspace now verifies and what still needs live end-to-end evidence before customer shipment.
 
@@ -60,7 +60,7 @@ See [product readiness audit](docs/product-readiness-audit.md) for what the work
 
 The workspace now includes an embeddable website enquiry widget with tenant keys and origin allowlists, event-triggered automations with duplicate/delete controls, date-aware analytics, explainable lead scoring, persistent first-run setup progress, quick actions, notification preferences and operational database alerts. Live settings include profile, password, data export and owner-confirmed workspace deletion controls. Lead tables and conversation history use bounded page sizes so larger workspaces do not render an unbounded record set.
 
-Apply all migrations through `0016_profile_pipeline_readiness.sql` and deploy `widget-inquiry` before enabling a live website widget. The generated snippet points to the deployed Supabase function and will reject requests from origins not saved in the widget configuration.
+Apply all migrations through `0019_lead_source_credential_hardening.sql` and deploy `widget-inquiry` before enabling a live website widget. The generated snippet points to the deployed public function and will reject requests from origins not saved in the widget configuration.
 
 ## Demo data
 

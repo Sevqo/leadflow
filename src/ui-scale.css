@@ -69,6 +69,16 @@
 .performance-bars b { background:linear-gradient(180deg,#55cba8,#239474); }
 .performance-column small { position:absolute; bottom:-24px; color:var(--muted); white-space:nowrap; font-size:10px; }
 .performance-link { margin:0 22px 20px; }
+.chart-controls{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+.chart-type-toggle{display:flex;padding:3px;border:1px solid var(--line);border-radius:9px;background:var(--card)}
+.chart-type-toggle button{border:0;border-radius:6px;padding:6px 9px;background:transparent;color:var(--muted);font-size:11px;font-weight:750}
+.chart-type-toggle button[aria-pressed=true]{background:var(--primary);color:#fff}
+.performance-lines{position:absolute;z-index:1;inset:20px 4px 30px;width:calc(100% - 8px);height:calc(100% - 50px);overflow:visible}
+.performance-lines polyline{fill:none;stroke-width:2.2;vector-effect:non-scaling-stroke;stroke-linecap:round;stroke-linejoin:round}
+.performance-lines polyline.total{stroke:#625be7}.performance-lines polyline.qualified{stroke:#2db38a}
+.performance-lines circle.total{fill:#625be7}.performance-lines circle.qualified{fill:#2db38a}
+.performance-line-labels{position:absolute;z-index:2;left:4px;right:4px;bottom:0;display:grid;grid-auto-flow:column;grid-auto-columns:1fr;color:var(--muted)}
+.performance-line-labels small{text-align:center;white-space:nowrap}
 
 .automation-live-note { display:flex; align-items:center; gap:13px; margin:-8px 0 18px; padding:14px 18px; border:1px solid #bde8d9; border-radius:12px; background:#effaf6; color:#176c52; }
 .automation-live-note>span { width:30px; height:30px; display:grid; place-items:center; border-radius:50%; background:#d7f3e9; font-size:18px; }
@@ -117,6 +127,8 @@
   .performance-card{min-height:330px}
   .performance-plot{height:190px}
   .performance-chart-summary{gap:12px;flex-wrap:wrap}
+  .performance-card .card-head{gap:12px;flex-direction:column}
+  .chart-controls{width:100%;justify-content:space-between}
   .app .topbar{padding-inline:12px}
   .app .top-actions{gap:3px;min-width:0}
   .app .search{width:38px;min-width:38px;padding:5px;font-size:0}

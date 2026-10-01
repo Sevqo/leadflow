@@ -21,7 +21,9 @@ test('contextual Help gives searchable steps and routes to the module',async({pa
 test('analytics exposes a dated trend, quality filters, and method',async({page})=>{
   await page.locator('.sidebar nav').getByRole('button',{name:'Analytics'}).click()
   await expect(page.getByRole('heading',{name:'Lead acquisition trend'})).toBeVisible()
-  await expect(page.getByRole('img',{name:/leads created in the selected period/})).toBeVisible()
+  await expect(page.getByRole('img',{name:/bar chart.*leads created in the selected period/i})).toBeVisible()
+  await page.getByRole('button',{name:'Line',exact:true}).click()
+  await expect(page.getByRole('img',{name:/line chart.*leads created in the selected period/i})).toBeVisible()
   await page.getByRole('button',{name:/Missing deal value/}).click()
   await expect(page.getByRole('button',{name:/Missing deal value/})).toHaveAttribute('aria-pressed','true')
   await page.getByText('How these numbers are calculated').click()

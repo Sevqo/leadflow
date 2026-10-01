@@ -62,7 +62,7 @@ function App() {
   const auth=useAuthSession()
   const liveMode=isSupabaseConfigured&&!demoMode
   const profileState=useUserProfile(auth.user?.id,liveMode&&Boolean(auth.user))
-  const organizationState=useOrganizations(liveMode&&Boolean(auth.user))
+  const organizationState=useOrganizations(auth.user?.id,liveMode&&Boolean(auth.user))
   const liveWorkspace=useSupabaseWorkspaceData(organizationState.activeOrganization?.id,liveMode&&Boolean(organizationState.activeOrganization))
   const liveNotifications=useNotifications(organizationState.activeOrganization?.id,liveMode&&Boolean(auth.user)&&Boolean(organizationState.activeOrganization))
   const workspace=demoMode?demoWorkspace:liveWorkspace
@@ -133,7 +133,7 @@ function App() {
   if (view === 'auth') return <AuthScreen onDemo={enterDemo} onAuthenticated={authenticated} onBack={() => setView('marketing')} />
   if(liveMode&&auth.loading)return <SessionGate title="Securing your session" copy="Checking your Sevqo account…" />
   if(liveMode&&!auth.user)return <AuthScreen onDemo={enterDemo} onAuthenticated={authenticated} onBack={()=>setView('marketing')} />
-  if(liveMode&&organizationState.loading)return <SessionGate title="Loading your workspaces" copy="Applying your organization permissions…" />
+  if(liveMode&&organizationState.loading)return <SessionGate title="Opening your workspace" copy="Loading your saved organization and permissions…" />
   if(liveMode&&organizationState.error)return <SessionGate title="Workspace unavailable" copy={organizationState.error} action="Try again" onAction={()=>void organizationState.refresh()} />
   if(liveMode&&!organizationState.activeOrganization)return <div className={dark?'app dark setup-only':'app setup-only'}><section className="content"><Onboarding onComplete={async details=>{const id=await organizationState.create(details.name);await saveOrganizationSettings(id,{name:details.name,industry:details.industry,website:details.website,phone:details.phone,country:details.country,timezone:details.timezone});await organizationState.refresh();setActive('Overview');notify('Workspace created securely')}}/></section>{toast&&<div className="toast" role="status">✓ {toast}</div>}</div>
   if(liveMode&&liveWorkspace.loading)return <SessionGate title="Loading your CRM" copy="Syncing leads, contacts, activity and workspace members…" />

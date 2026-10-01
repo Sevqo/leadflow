@@ -110,6 +110,6 @@ export type IntegrationRow = Integration
 export type WebhookEndpointRow = WebhookEndpoint
 export type WebhookDeliveryRow = WebhookDelivery
 export type WidgetConfigRow = WidgetConfig
-export type LeadSourceRow = LeadSource
+export type LeadSourceRow = Omit<LeadSource,'secret_hash'>
 export type NotificationPreferenceRow = NotificationPreference
 export type PlanLimitRow = PlanLimit

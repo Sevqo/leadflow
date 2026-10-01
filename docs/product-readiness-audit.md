@@ -5,6 +5,7 @@
 - Contextual, searchable Help guides cover launch setup, source capture, ownership, inbox, pipeline, automations, AI knowledge, analytics and billing. Each gives steps, a checkable outcome and an explicit limitation.
 - Analytics includes an acquisition-by-created-date trend, prior-period lead count, source and owner views, stage distribution, data-quality filters, and an export. Open pipeline and weighted forecast exclude Won and Lost records. The interface explains that current stage and current Won status are not historical conversion events.
 - The automation builder validates required parameters before activation and previews an unsaved workflow against a selected lead without changing customer data. Run history can be filtered by outcome and exposes live failure/retry metadata when present. Recorded-run counts do not claim delivery success.
+- Universal source credentials are shown once, stored only as hashes, and excluded from authenticated browser reads. External payloads no longer contain internal source UUIDs, and connector screens conceal provider infrastructure until an authorized user explicitly copies the public webhook URL.
 - The app uses the Sevqo ribbon asset, larger workspace type, keyboard focus treatment, consistent card styling, and responsive header spacing. Mobile drawer/inbox and page-width regression tests pass.
 
 ## Still required before inviting real customers
