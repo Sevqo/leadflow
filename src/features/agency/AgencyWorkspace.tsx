@@ -14,7 +14,7 @@ import './agency-summary.css'
 
 type Area='Clients'|'Projects'|'Systems'|'AI Agents'|'Approvals'|'Operations'|'Costs'|'Activity'
 const empty={clients:[] as AgencyClientRow[],projects:[] as AgencyProjectRow[],systems:[] as ClientSystemRow[],agents:[] as AgencyAiAgentRow[],approvals:[] as AgencyApprovalRequestRow[],milestones:[] as ProjectMilestoneRow[]}
-const clientTabs=['Overview','Projects','Systems','AI Agents','Usage','Support','Documents','Billing','Activity'] as const
+const clientTabs=['Overview','Projects','Systems','AI Agents'] as const
 export function AgencyWorkspace({area,organizationId,role,isDemo,focusId}:{area:Area;organizationId?:string;role:string;isDemo:boolean;focusId?:string}){
   const [data,setData]=useState(empty),[costs,setCosts]=useState<AgencyCostEntryRow[]>([]),[runs,setRuns]=useState<AutomationRunRow[]>([])
   const [loading,setLoading]=useState(!isDemo),[error,setError]=useState(''),[busy,setBusy]=useState(false)

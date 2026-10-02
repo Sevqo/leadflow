@@ -35,6 +35,16 @@ test('team chat exposes room navigation and mobile back control',async({page})=>
   await expect(page.getByLabel('Message your team')).toBeVisible()
 })
 
+test('team channel creation uses a validated product dialog and client records expose no dead-end tabs',async()=>{
+  const root=resolve(import.meta.dirname,'..')
+  const chat=await readFile(resolve(root,'src/features/team-chat/TeamChatPage.tsx'),'utf8')
+  const clients=await readFile(resolve(root,'src/features/agency/AgencyWorkspace.tsx'),'utf8')
+  expect(chat).toContain("input.pattern='[a-z0-9-]+'");expect(chat).toContain("dialog.showModal()")
+  expect(chat).not.toContain('window.prompt')
+  expect(clients).toContain("const clientTabs=['Overview','Projects','Systems','AI Agents']")
+  for(const deadEnd of ["'Usage'","'Support'","'Documents'","'Billing'"])expect(clients.split('const clientTabs=')[1].split('\n')[0]).not.toContain(deadEnd)
+})
+
 test('inbox exposes a dedicated team-only client notes panel',async({page})=>{
   await page.locator('.sidebar nav').getByRole('button',{name:'Inbox'}).click()
   await page.locator('.conversation-list').getByRole('button',{name:/James Mwangi/}).click()
