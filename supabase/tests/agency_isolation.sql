@@ -1,7 +1,7 @@
 -- Run only against a disposable migrated Supabase database: supabase test db
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(20);
+select plan(25);
 
 insert into auth.users(id,email,aud,role,encrypted_password,email_confirmed_at) values
 ('31000000-0000-0000-0000-000000000001','agency-a-owner@example.test','authenticated','authenticated','',now()),
@@ -36,6 +36,11 @@ insert into public.team_messages(id,organization_id,room_id,sender_id,sender_nam
 ('a4000000-0000-0000-0000-000000000001','a1000000-0000-0000-0000-000000000001','a3000000-0000-0000-0000-000000000001','31000000-0000-0000-0000-000000000001','Owner','Private message');
 insert into public.invitations(organization_id,email,role,token_hash,invited_by,expires_at) values
 ('a1000000-0000-0000-0000-000000000001','agency-a-agent@example.test','ADMIN',encode(digest('role-overwrite-fixture','sha256'),'hex'),'31000000-0000-0000-0000-000000000001',now()+interval '1 day');
+insert into public.outbound_campaigns(id,organization_id,name,created_by) values
+('a6000000-0000-0000-0000-000000000001','a1000000-0000-0000-0000-000000000001','Agency A outbound','31000000-0000-0000-0000-000000000001'),
+('b6000000-0000-0000-0000-000000000001','b1000000-0000-0000-0000-000000000001','Agency B outbound','32000000-0000-0000-0000-000000000001');
+insert into public.outbound_prospects(id,organization_id,campaign_id,name,email,company,fit_score) values
+('a7000000-0000-0000-0000-000000000001','a1000000-0000-0000-0000-000000000001','a6000000-0000-0000-0000-000000000001','Agency A Prospect','prospect-a@example.test','Prospect A Ltd',88);
 
 set local role authenticated;
 select set_config('request.jwt.claim.sub','31000000-0000-0000-0000-000000000002',true);
@@ -44,6 +49,8 @@ select is((select count(*) from public.agency_cost_entries),0::bigint,'staff age
 select isnt(public.has_org_role('a1000000-0000-0000-0000-000000000001',array['OWNER','ADMIN']::public.member_role[]),true,'agent cannot approve privileged actions');
 select throws_ok($$select public.accept_invitation('role-overwrite-fixture')$$,'P0001','already a member of this workspace','an invitation cannot replace an existing member role');
 select is((select role::text from public.organization_members where organization_id='a1000000-0000-0000-0000-000000000001' and user_id='31000000-0000-0000-0000-000000000002'),'AGENT','existing agent role remains unchanged');
+select is((select count(*) from public.outbound_campaigns),1::bigint,'staff agent sees only own organization outbound campaigns');
+select throws_ok($$insert into public.outbound_campaigns(organization_id,name) values('a1000000-0000-0000-0000-000000000001','Unauthorized campaign')$$,'42501',null,'staff agent cannot create outbound campaigns');
 
 select set_config('request.jwt.claim.sub','31000000-0000-0000-0000-000000000001',true);
 select is((select count(*) from public.agency_cost_entries),1::bigint,'owner sees private costs');
@@ -59,6 +66,8 @@ insert into public.agency_projects(id,organization_id,client_id,name) values
 insert into public.tasks(organization_id,project_id,created_by,title) values
 ('a1000000-0000-0000-0000-000000000001','a5000000-0000-0000-0000-000000000001','31000000-0000-0000-0000-000000000001','Project task');
 select is((select count(*) from public.tasks where project_id='a5000000-0000-0000-0000-000000000001'),1::bigint,'existing Tasks system can attach delivery work to projects');
+select lives_ok($$select public.promote_outbound_prospect('a1000000-0000-0000-0000-000000000001','a7000000-0000-0000-0000-000000000001')$$,'owner can promote a reviewed prospect into the CRM');
+select ok((select lead_id is not null from public.outbound_prospects where id='a7000000-0000-0000-0000-000000000001'),'prospect promotion links the resulting CRM lead atomically');
 
 select set_config('request.jwt.claim.sub','31000000-0000-0000-0000-000000000003',true);
 select is((select count(*) from public.team_rooms where kind='DIRECT'),0::bigint,'same-workspace nonparticipant cannot see private room');
@@ -69,6 +78,7 @@ select is((select count(*) from public.agency_clients),0::bigint,'portal user ca
 select is((select count(*) from public.agency_cost_entries),0::bigint,'portal user cannot read costs');
 select is((select count(*) from public.client_portal_updates),0::bigint,'portal user cannot read update rows with staff metadata directly');
 select is((select count(*) from public.list_my_client_portal_updates('a2000000-0000-0000-0000-000000000001')),1::bigint,'portal user sees only their client-safe published updates through RPC');
+select is((select count(*) from public.outbound_campaigns),0::bigint,'portal user cannot read internal outbound campaign records');
 
 select * from finish();
 rollback;

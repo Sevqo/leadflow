@@ -15,7 +15,7 @@ This work adds agency delivery records to the existing LeadFlow app. It does not
 
 ## Database rollout
 
-Migrations `0021_agency_operations.sql` through `0024_invitation_role_guards.sql` must be applied in order. `0022` backfills a `# general` room for each existing organization, creates it for future organizations, and connects historical team messages to it. Existing `send_team_message` calls continue to write to General. Room and direct-message access is enforced in Postgres; the client uses room-scoped Realtime subscriptions. [Supabase documents that Postgres Changes applies table SELECT RLS to subscribed rows](https://supabase.com/docs/guides/realtime/authorization#interaction-with-postgres-changes).
+Migrations `0021_agency_operations.sql` through `0025_outbound_campaigns.sql` must be applied in order. `0022` backfills a `# general` room for each existing organization, creates it for future organizations, and connects historical team messages to it. Existing `send_team_message` calls continue to write to General. Room and direct-message access is enforced in Postgres; the client uses room-scoped Realtime subscriptions. [Supabase documents that Postgres Changes applies table SELECT RLS to subscribed rows](https://supabase.com/docs/guides/realtime/authorization#interaction-with-postgres-changes).
 
 The empty local Supabase database was rebuilt from scratch with Docker and all migrations through `0024`. Schema lint reported no errors and both pgtap files passed (30 assertions). Repeat the following checks before any production rollout:
 
@@ -39,6 +39,14 @@ npx supabase db push --dry-run
 Applying migrations to a production project requires a separate deliberate `npx supabase db push` after a backup and rollout window. The associated `ai-qualify`, `widget-inquiry`, `whatsapp-send`, and `team-invitations` Edge Function changes must be deployed only after the migrations are live. This document is not an instruction to deploy without confirming the migration plan, backup, and live configuration.
 
 On 1 October 2026, the linked LeadFlow project `lgfnnlrkedzrnvnchash` received migrations `0021`–`0024`; a subsequent dry run reported no pending migrations. The four dependent functions were deployed and reported `ACTIVE`. A public-schema and public-data dump was stored outside Git under the user's local application-data directory before rollout. The data dump warned about a circular foreign key on `automation_runs`, so recovery requires a reviewed restore procedure. These checks do not prove provider credentials, email delivery, or authenticated user journeys are operational.
+
+## Outbound campaigns
+
+Migration `0025` adds tenant-scoped campaign strategy, reviewed sequence steps and prospect records. The Outbound workspace supports offer and ICP definition, manual or CSV prospect intake, evidence and fit scoring, reviewed message drafts, suppression/outcome states, campaign learning and atomic promotion into the CRM. Owners, admins and managers can write; other workspace members can read; client-portal accounts cannot access these records.
+
+This is the internal control plane, not an Explee data or delivery integration. Proprietary prospect databases, web research, enrichment, email validation, sending mailboxes, reply synchronization and calendar booking require separately selected providers, legal/compliance review, server-side credentials and live tests. Campaign activation stays disabled until that infrastructure is implemented and verified.
+
+On 2 October 2026, migration `0025_outbound_campaigns.sql` was rebuilt and tested on the disposable local Docker stack, then applied to the linked LeadFlow project. A follow-up production dry run reported no pending migrations. No outbound provider credentials or functions were deployed.
 
 ## Honest setup states
 

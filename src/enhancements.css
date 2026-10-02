@@ -15,7 +15,7 @@
 .reveal.revealed { opacity:1; translate:0 0; }
 .marketing .mini-chart path { stroke-dasharray:600; stroke-dashoffset:600; animation:draw-chart 2.2s var(--motion-ease) .6s forwards; }
 @keyframes draw-chart { to { stroke-dashoffset:0; } }
-.content > * { animation:workspace-enter .4s var(--motion-ease) both; }
+.content > * { animation:workspace-enter .4s var(--motion-ease) backwards; }
 @keyframes workspace-enter { from { opacity:0; translate:0 8px; } to { opacity:1; translate:0 0; } }
 button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible { outline:2px solid #9188ff; outline-offset:4px; }
 .insight-controls { display:flex; align-items:end; flex-wrap:wrap; gap:22px; padding:20px; margin-bottom:22px; }

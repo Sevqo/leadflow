@@ -40,6 +40,9 @@ type AgencyAiAgent = { id:string; organization_id:string; client_id:string|null;
 type AgencyApprovalRequest = { id:string; organization_id:string; client_id:string|null; action_type:string; summary:string; status:'PENDING'|'APPROVED'|'REJECTED'|'CANCELLED'; requested_by:string|null; decided_by:string|null; decided_at:string|null; created_at:string }
 type AgencyCostEntry = { id:string; organization_id:string; client_id:string|null; category:string; description:string; amount:number; currency:string; occurred_on:string; source:'MANUAL'|'METERED'; created_by:string|null; created_at:string }
 type ClientPortalUpdate = { id:string; organization_id:string; client_id:string; title:string; body:string; published_at:string; created_by:string|null }
+type OutboundCampaign = { id:string; organization_id:string; name:string; website_url:string|null; offer_summary:string; value_proposition:string; target_industries:string[]; target_regions:string[]; target_company_sizes:string[]; target_titles:string[]; tone:'PROFESSIONAL'|'FRIENDLY'|'CONCISE'|'CUSTOM'; booking_url:string|null; daily_send_limit:number; status:'DRAFT'|'READY'|'ACTIVE'|'PAUSED'|'COMPLETE'; created_by:string|null; created_at:string; updated_at:string }
+type OutboundSequenceStep = { id:string; organization_id:string; campaign_id:string; position:number; delay_days:number; subject_template:string; body_template:string; created_at:string; updated_at:string }
+type OutboundProspect = { id:string; organization_id:string; campaign_id:string; name:string; email:string|null; title:string|null; company:string; website:string|null; country:string|null; industry:string|null; fit_score:number; research_notes:string|null; personalized_subject:string|null; personalized_body:string|null; status:'SOURCED'|'REVIEW'|'APPROVED'|'CONTACTED'|'REPLIED'|'INTERESTED'|'MEETING'|'DISQUALIFIED'|'BOUNCED'|'OPTED_OUT'; lead_id:string|null; last_contacted_at:string|null; replied_at:string|null; meeting_at:string|null; created_at:string; updated_at:string }
 
 type Table<Row, Insert = Partial<Row>, Update = Partial<Insert>> = { Row:Row; Insert:Insert; Update:Update; Relationships:[] }
 
@@ -85,6 +88,9 @@ export interface Database {
       agency_cost_entries: Table<AgencyCostEntry,Pick<AgencyCostEntry,'organization_id'|'category'|'description'|'amount'|'currency'|'occurred_on'> & Partial<AgencyCostEntry>>
       client_portal_members: Table<{organization_id:string;client_id:string;user_id:string;created_at:string}>
       client_portal_updates: Table<ClientPortalUpdate>
+      outbound_campaigns: Table<OutboundCampaign, Pick<OutboundCampaign,'organization_id'|'name'> & Partial<OutboundCampaign>>
+      outbound_sequence_steps: Table<OutboundSequenceStep, Pick<OutboundSequenceStep,'organization_id'|'campaign_id'|'position'> & Partial<OutboundSequenceStep>>
+      outbound_prospects: Table<OutboundProspect, Pick<OutboundProspect,'organization_id'|'campaign_id'|'name'|'company'> & Partial<OutboundProspect>>
     }
     Views: Record<string, never>
     Functions: {
@@ -125,6 +131,7 @@ export interface Database {
       team_room_unread_counts: { Args:{target_org:string}; Returns:{room_id:string;unread_count:number}[] }
       set_conversation_handling: { Args:{ target_org:string;target_conversation:string;next_mode:string }; Returns:Conversation }
       add_conversation_note: { Args:{target_org:string;target_conversation:string;note_body:string}; Returns:Message }
+      promote_outbound_prospect: { Args:{target_org:string;target_prospect:string}; Returns:string }
     }
     Enums: { member_role:MemberRole; lead_stage:DatabaseLeadStage }
     CompositeTypes: Record<string, never>
@@ -167,4 +174,7 @@ export type AgencyAiAgentRow = AgencyAiAgent
 export type AgencyApprovalRequestRow = AgencyApprovalRequest
 export type AgencyCostEntryRow = AgencyCostEntry
 export type ClientPortalUpdateRow = ClientPortalUpdate
+export type OutboundCampaignRow = OutboundCampaign
+export type OutboundSequenceStepRow = OutboundSequenceStep
+export type OutboundProspectRow = OutboundProspect
 export type AuditEventRow = AuditEvent
