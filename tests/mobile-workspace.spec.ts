@@ -59,7 +59,7 @@ test('team roster and automation tabs fit phone and desktop layouts',async({page
 
 test('every workspace module avoids document-level phone overflow',async({page})=>{
   test.setTimeout(90_000)
-  const modules=['Overview','Inbox','Leads','Pipeline','Tasks','Contacts','Team','Team Chat','Automations','AI Assistant','Knowledge','Analytics','Integrations','Billing']
+  const modules=['Overview','Inbox','Leads','Pipeline','Tasks','Contacts','Team','Team Chat','Automations','AI Assistant','Knowledge','Analytics','Integrations','Outbound','Clients','Projects','Systems','AI Agents','Approvals','Operations','Costs','Activity','Billing']
   for(const width of [320,390,430]){
     await page.setViewportSize({width,height:740})
     for(const name of modules){
@@ -73,4 +73,14 @@ test('every workspace module avoids document-level phone overflow',async({page})
   expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBeTruthy()
   await openPage(page,'Help',true)
   expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBeTruthy()
+})
+
+test('overview uses compact two-column metrics and touch-sized controls',async({page})=>{
+  const metrics=page.locator('.metric-grid .metric')
+  await expect(metrics).toHaveCount(4)
+  const boxes=await metrics.evaluateAll(items=>items.map(item=>{const box=item.getBoundingClientRect();return {width:box.width,height:box.height}}))
+  expect(boxes[0].width).toBeLessThan(190)
+  expect(Math.max(...boxes.map(box=>box.height))).toBeLessThanOrEqual(125)
+  const topbar=await page.locator('.topbar').evaluate(element=>element.getBoundingClientRect().height)
+  expect(topbar).toBeLessThanOrEqual(62)
 })

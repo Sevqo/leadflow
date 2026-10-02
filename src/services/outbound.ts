@@ -1,15 +1,18 @@
 import {requireSupabase,throwServiceError} from './api'
-import type {OutboundCampaignRow,OutboundProspectRow,OutboundSequenceStepRow} from '../types/database'
+import type {OutboundCampaignRow,OutboundDeliveryRow,OutboundJobRow,OutboundProspectRow,OutboundProviderConnectionRow,OutboundSequenceStepRow} from '../types/database'
 
 export async function loadOutbound(organizationId:string){
   const db=requireSupabase()
-  const [campaigns,prospects,steps]=await Promise.all([
+  const [campaigns,prospects,steps,connections,jobs,deliveries]=await Promise.all([
     db.from('outbound_campaigns').select('*').eq('organization_id',organizationId).order('created_at',{ascending:false}),
     db.from('outbound_prospects').select('*').eq('organization_id',organizationId).order('fit_score',{ascending:false}),
     db.from('outbound_sequence_steps').select('*').eq('organization_id',organizationId).order('position'),
+    db.from('outbound_provider_connections').select('*').eq('organization_id',organizationId).order('capability'),
+    db.from('outbound_jobs').select('*').eq('organization_id',organizationId).order('created_at',{ascending:false}).limit(50),
+    db.from('outbound_message_deliveries').select('*').eq('organization_id',organizationId).order('created_at',{ascending:false}).limit(50),
   ])
-  for(const result of [campaigns,prospects,steps])if(result.error)throwServiceError(result.error,'Unable to load outbound campaigns.')
-  return {campaigns:campaigns.data??[],prospects:prospects.data??[],steps:steps.data??[]}
+  for(const result of [campaigns,prospects,steps,connections,jobs,deliveries])if(result.error)throwServiceError(result.error,'Unable to load outbound campaigns.')
+  return {campaigns:campaigns.data??[],prospects:prospects.data??[],steps:steps.data??[],connections:connections.data??[],jobs:jobs.data??[],deliveries:deliveries.data??[]}
 }
 
 export async function createOutboundCampaign(organizationId:string,input:Pick<OutboundCampaignRow,'name'|'website_url'|'offer_summary'|'value_proposition'|'target_industries'|'target_regions'|'target_company_sizes'|'target_titles'|'tone'|'booking_url'|'daily_send_limit'>){
@@ -39,3 +42,16 @@ export async function promoteOutboundProspect(organizationId:string,prospectId:s
   const {data,error}=await requireSupabase().rpc('promote_outbound_prospect',{target_org:organizationId,target_prospect:prospectId})
   if(error)throwServiceError(error,'Unable to create CRM lead.');return data
 }
+export async function configureOutboundProvider(organizationId:string,capability:OutboundProviderConnectionRow['capability'],providerName:string){
+  const {data,error}=await requireSupabase().rpc('configure_outbound_provider',{target_org:organizationId,target_capability:capability,target_provider:providerName,config:{}})
+  if(error)throwServiceError(error,'Unable to save provider configuration.');return data as OutboundProviderConnectionRow
+}
+export async function verifyOutboundProvider(organizationId:string,capability:OutboundProviderConnectionRow['capability'],providerName:string){
+  const {data,error}=await requireSupabase().functions.invoke('outbound-provider-check',{body:{organizationId,capability,providerName}})
+  if(error)throwServiceError(error,'Unable to verify provider.');return data as {connected:boolean;error?:string}
+}
+export async function enqueueOutboundJob(organizationId:string,prospectId:string,jobType:OutboundJobRow['job_type'],stepId?:string|null){
+  const {data,error}=await requireSupabase().rpc('enqueue_outbound_job',{target_org:organizationId,target_prospect:prospectId,target_job_type:jobType,target_step:stepId??null})
+  if(error)throwServiceError(error,'Unable to queue provider job.');return data as OutboundJobRow
+}
+export type OutboundWorkspaceData={campaigns:OutboundCampaignRow[];prospects:OutboundProspectRow[];steps:OutboundSequenceStepRow[];connections:OutboundProviderConnectionRow[];jobs:OutboundJobRow[];deliveries:OutboundDeliveryRow[]}

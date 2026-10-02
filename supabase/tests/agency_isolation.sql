@@ -1,7 +1,7 @@
 -- Run only against a disposable migrated Supabase database: supabase test db
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(25);
+select plan(29);
 
 insert into auth.users(id,email,aud,role,encrypted_password,email_confirmed_at) values
 ('31000000-0000-0000-0000-000000000001','agency-a-owner@example.test','authenticated','authenticated','',now()),
@@ -41,6 +41,9 @@ insert into public.outbound_campaigns(id,organization_id,name,created_by) values
 ('b6000000-0000-0000-0000-000000000001','b1000000-0000-0000-0000-000000000001','Agency B outbound','32000000-0000-0000-0000-000000000001');
 insert into public.outbound_prospects(id,organization_id,campaign_id,name,email,company,fit_score) values
 ('a7000000-0000-0000-0000-000000000001','a1000000-0000-0000-0000-000000000001','a6000000-0000-0000-0000-000000000001','Agency A Prospect','prospect-a@example.test','Prospect A Ltd',88);
+insert into public.outbound_provider_connections(organization_id,capability,provider_name) values
+('a1000000-0000-0000-0000-000000000001','RESEARCH','Adapter A'),
+('b1000000-0000-0000-0000-000000000001','RESEARCH','Adapter B');
 
 set local role authenticated;
 select set_config('request.jwt.claim.sub','31000000-0000-0000-0000-000000000002',true);
@@ -51,6 +54,8 @@ select throws_ok($$select public.accept_invitation('role-overwrite-fixture')$$,'
 select is((select role::text from public.organization_members where organization_id='a1000000-0000-0000-0000-000000000001' and user_id='31000000-0000-0000-0000-000000000002'),'AGENT','existing agent role remains unchanged');
 select is((select count(*) from public.outbound_campaigns),1::bigint,'staff agent sees only own organization outbound campaigns');
 select throws_ok($$insert into public.outbound_campaigns(organization_id,name) values('a1000000-0000-0000-0000-000000000001','Unauthorized campaign')$$,'42501',null,'staff agent cannot create outbound campaigns');
+select is((select count(*) from public.outbound_provider_connections),1::bigint,'staff sees only own organization provider connections');
+select throws_ok($$select public.configure_outbound_provider('a1000000-0000-0000-0000-000000000001','MAILBOX','Mailbox adapter')$$,'P0001','insufficient permission','agent cannot configure provider infrastructure');
 
 select set_config('request.jwt.claim.sub','31000000-0000-0000-0000-000000000001',true);
 select is((select count(*) from public.agency_cost_entries),1::bigint,'owner sees private costs');
@@ -68,6 +73,8 @@ insert into public.tasks(organization_id,project_id,created_by,title) values
 select is((select count(*) from public.tasks where project_id='a5000000-0000-0000-0000-000000000001'),1::bigint,'existing Tasks system can attach delivery work to projects');
 select lives_ok($$select public.promote_outbound_prospect('a1000000-0000-0000-0000-000000000001','a7000000-0000-0000-0000-000000000001')$$,'owner can promote a reviewed prospect into the CRM');
 select ok((select lead_id is not null from public.outbound_prospects where id='a7000000-0000-0000-0000-000000000001'),'prospect promotion links the resulting CRM lead atomically');
+select lives_ok($$select public.configure_outbound_provider('a1000000-0000-0000-0000-000000000001','ENRICHMENT','Enrichment adapter')$$,'owner can register provider metadata without exposing credentials');
+select throws_ok($$select public.enqueue_outbound_job('a1000000-0000-0000-0000-000000000001','a7000000-0000-0000-0000-000000000001','RESEARCH_PROSPECT',null)$$,'P0001','Research provider setup is required','jobs remain blocked until a server-side provider is verified');
 
 select set_config('request.jwt.claim.sub','31000000-0000-0000-0000-000000000003',true);
 select is((select count(*) from public.team_rooms where kind='DIRECT'),0::bigint,'same-workspace nonparticipant cannot see private room');

@@ -42,7 +42,10 @@ type AgencyCostEntry = { id:string; organization_id:string; client_id:string|nul
 type ClientPortalUpdate = { id:string; organization_id:string; client_id:string; title:string; body:string; published_at:string; created_by:string|null }
 type OutboundCampaign = { id:string; organization_id:string; name:string; website_url:string|null; offer_summary:string; value_proposition:string; target_industries:string[]; target_regions:string[]; target_company_sizes:string[]; target_titles:string[]; tone:'PROFESSIONAL'|'FRIENDLY'|'CONCISE'|'CUSTOM'; booking_url:string|null; daily_send_limit:number; status:'DRAFT'|'READY'|'ACTIVE'|'PAUSED'|'COMPLETE'; created_by:string|null; created_at:string; updated_at:string }
 type OutboundSequenceStep = { id:string; organization_id:string; campaign_id:string; position:number; delay_days:number; subject_template:string; body_template:string; created_at:string; updated_at:string }
-type OutboundProspect = { id:string; organization_id:string; campaign_id:string; name:string; email:string|null; title:string|null; company:string; website:string|null; country:string|null; industry:string|null; fit_score:number; research_notes:string|null; personalized_subject:string|null; personalized_body:string|null; status:'SOURCED'|'REVIEW'|'APPROVED'|'CONTACTED'|'REPLIED'|'INTERESTED'|'MEETING'|'DISQUALIFIED'|'BOUNCED'|'OPTED_OUT'; lead_id:string|null; last_contacted_at:string|null; replied_at:string|null; meeting_at:string|null; created_at:string; updated_at:string }
+type OutboundProspect = { id:string; organization_id:string; campaign_id:string; name:string; email:string|null; title:string|null; company:string; website:string|null; country:string|null; industry:string|null; fit_score:number; research_notes:string|null; personalized_subject:string|null; personalized_body:string|null; status:'SOURCED'|'REVIEW'|'APPROVED'|'CONTACTED'|'REPLIED'|'INTERESTED'|'MEETING'|'DISQUALIFIED'|'BOUNCED'|'OPTED_OUT'; research_status:'NOT_STARTED'|'QUEUED'|'RUNNING'|'COMPLETE'|'FAILED'|'BLOCKED'; enrichment_status:'NOT_STARTED'|'QUEUED'|'RUNNING'|'COMPLETE'|'FAILED'|'BLOCKED'; email_validation_status:'UNKNOWN'|'QUEUED'|'RUNNING'|'VALID'|'RISKY'|'INVALID'|'FAILED'|'BLOCKED'; email_validation_reason:string|null; enrichment:Json; provider_contact_id:string|null; lead_id:string|null; last_contacted_at:string|null; replied_at:string|null; meeting_at:string|null; created_at:string; updated_at:string }
+type OutboundProviderConnection = {id:string;organization_id:string;capability:'RESEARCH'|'ENRICHMENT'|'EMAIL_VALIDATION'|'MAILBOX'|'CALENDAR';provider_name:string;status:'SETUP_REQUIRED'|'VERIFYING'|'CONNECTED'|'ERROR'|'DISABLED';public_config:Json;last_checked_at:string|null;last_error:string|null;created_at:string;updated_at:string}
+type OutboundJob = {id:string;organization_id:string;campaign_id:string|null;prospect_id:string|null;capability:OutboundProviderConnection['capability'];job_type:'RESEARCH_PROSPECT'|'ENRICH_PROSPECT'|'VALIDATE_EMAIL'|'SEND_SEQUENCE_STEP'|'SYNC_BOOKING';status:'QUEUED'|'RUNNING'|'SUCCEEDED'|'FAILED'|'BLOCKED'|'CANCELLED';input:Json;output:Json;attempt:number;max_attempts:number;available_at:string;locked_at:string|null;completed_at:string|null;last_error:string|null;created_by:string|null;created_at:string;updated_at:string}
+type OutboundDelivery = {id:string;organization_id:string;campaign_id:string;prospect_id:string;sequence_step_id:string|null;provider_message_id:string|null;status:'QUEUED'|'SENT'|'DELIVERED'|'REPLIED'|'BOUNCED'|'FAILED'|'COMPLAINED'|'UNSUBSCRIBED';subject:string|null;sent_at:string|null;delivered_at:string|null;replied_at:string|null;bounced_at:string|null;created_at:string;updated_at:string}
 
 type Table<Row, Insert = Partial<Row>, Update = Partial<Insert>> = { Row:Row; Insert:Insert; Update:Update; Relationships:[] }
 
@@ -91,6 +94,9 @@ export interface Database {
       outbound_campaigns: Table<OutboundCampaign, Pick<OutboundCampaign,'organization_id'|'name'> & Partial<OutboundCampaign>>
       outbound_sequence_steps: Table<OutboundSequenceStep, Pick<OutboundSequenceStep,'organization_id'|'campaign_id'|'position'> & Partial<OutboundSequenceStep>>
       outbound_prospects: Table<OutboundProspect, Pick<OutboundProspect,'organization_id'|'campaign_id'|'name'|'company'> & Partial<OutboundProspect>>
+      outbound_provider_connections: Table<OutboundProviderConnection, Pick<OutboundProviderConnection,'organization_id'|'capability'|'provider_name'> & Partial<OutboundProviderConnection>>
+      outbound_jobs: Table<OutboundJob, Pick<OutboundJob,'organization_id'|'capability'|'job_type'> & Partial<OutboundJob>>
+      outbound_message_deliveries: Table<OutboundDelivery, Pick<OutboundDelivery,'organization_id'|'campaign_id'|'prospect_id'> & Partial<OutboundDelivery>>
     }
     Views: Record<string, never>
     Functions: {
@@ -132,6 +138,8 @@ export interface Database {
       set_conversation_handling: { Args:{ target_org:string;target_conversation:string;next_mode:string }; Returns:Conversation }
       add_conversation_note: { Args:{target_org:string;target_conversation:string;note_body:string}; Returns:Message }
       promote_outbound_prospect: { Args:{target_org:string;target_prospect:string}; Returns:string }
+      configure_outbound_provider: {Args:{target_org:string;target_capability:string;target_provider:string;config?:Json};Returns:OutboundProviderConnection}
+      enqueue_outbound_job: {Args:{target_org:string;target_prospect:string;target_job_type:string;target_step?:string|null};Returns:OutboundJob}
     }
     Enums: { member_role:MemberRole; lead_stage:DatabaseLeadStage }
     CompositeTypes: Record<string, never>
@@ -177,4 +185,7 @@ export type ClientPortalUpdateRow = ClientPortalUpdate
 export type OutboundCampaignRow = OutboundCampaign
 export type OutboundSequenceStepRow = OutboundSequenceStep
 export type OutboundProspectRow = OutboundProspect
+export type OutboundProviderConnectionRow = OutboundProviderConnection
+export type OutboundJobRow = OutboundJob
+export type OutboundDeliveryRow = OutboundDelivery
 export type AuditEventRow = AuditEvent

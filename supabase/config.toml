@@ -430,6 +430,16 @@ verify_jwt = true
 [functions.source-ingest]
 verify_jwt = false
 
+[functions.outbound-provider-check]
+verify_jwt = true
+
+[functions.outbound-worker]
+verify_jwt = false
+
+# Provider callbacks are authenticated with OUTBOUND_WEBHOOK_SECRET HMAC signatures.
+[functions.outbound-webhook]
+verify_jwt = false
+
 # [edge_runtime.secrets]
 # secret_key = "env(SECRET_VALUE)"
 

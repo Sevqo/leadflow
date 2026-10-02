@@ -64,3 +64,14 @@ Billing checkout is disabled by default because the current Stripe flow is not a
 - Expand project-task assignment and connect systems with documents, AI agents, activity history, and verified telemetry.
 - Expand role-aware global search, management analytics, and audit log UI. Client financial reporting requires a verified revenue source.
 - Approval records currently capture review decisions but do not execute queued privileged actions. Agent configurations do not yet run. System health is manually recorded, not observed. Do not present any of these as a connected production automation until the execution and telemetry integrations are implemented and verified.
+## Outbound provider infrastructure
+
+LeadFlow owns the orchestration layer while external providers own research, enrichment, email verification, mailbox delivery, and calendar execution. The browser never receives provider keys or adapter URLs.
+
+Configure these Edge Function secrets when providers are selected: `OUTBOUND_CRON_SECRET`, `OUTBOUND_WEBHOOK_SECRET`, plus the matching `OUTBOUND_<CAPABILITY>_API_URL` and `OUTBOUND_<CAPABILITY>_API_KEY` pair documented in `.env.example`. Each adapter implements:
+
+- `POST /health` with `{ capability, workspaceId }` and a JSON success response.
+- `POST /execute` with the normalized job, campaign, prospect, and sequence payload. Research returns `researchNotes`; enrichment returns `data` and optional `contactId`; validation returns `verdict` (`VALID`, `RISKY`, or `INVALID`) and `reason`; mailbox returns `messageId` and optional `subject`.
+- Signed event callbacks to `outbound-webhook` using `x-leadflow-signature: sha256=<HMAC_SHA256(raw_body)>`. Events support `DELIVERED`, `REPLIED`, `BOUNCED`, `COMPLAINED`, `UNSUBSCRIBED`, and `MEETING_BOOKED`.
+
+After deploying `outbound-provider-check`, `outbound-worker`, and `outbound-webhook`, configure the one-minute worker with the service-role-only `configure_outbound_worker_scheduler(project_url, cron_secret)` function. Sending is rejected unless the prospect is approved, the email is valid, and the address is absent from the suppression list.

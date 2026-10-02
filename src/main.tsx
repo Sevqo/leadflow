@@ -45,6 +45,7 @@ import type { LeadDraft, WorkspaceLead } from './features/crm/types'
 import {industryNames} from './config/industries'
 import {useUserProfile} from './features/profile/useUserProfile'
 import './ui-scale.css'
+import './mobile-polish.css'
 import {ErrorBoundary} from './ErrorBoundary'
 const AnalyticsWorkbench = lazy(() => import('./Analytics').then(module => ({ default: module.Analytics })))
 

@@ -92,7 +92,7 @@ test('agency dialogs escape animated workspace containers and cannot be clipped 
 test('outbound workspace supports reviewed campaigns and keeps provider work truthful',async({page})=>{
   await page.getByRole('button',{name:'Outbound'}).click()
   await expect(page.getByRole('heading',{name:'Campaigns'})).toBeVisible()
-  await expect(page.getByText('Research and sending provider required')).toBeVisible()
+  await expect(page.getByText('Provider-ready infrastructure')).toBeVisible()
   await expect(page.getByRole('heading',{name:'East Africa growth leaders'})).toBeVisible()
   await page.getByRole('button',{name:'Prospects',exact:true}).click()
   await expect(page.getByText('Amina Kamau')).toBeVisible()
@@ -104,6 +104,10 @@ test('outbound workspace supports reviewed campaigns and keeps provider work tru
   expect(box).not.toBeNull()
   expect(box!.y).toBeGreaterThanOrEqual(0)
   await expect(page.getByRole('button',{name:'Close'})).toBeVisible()
+  await page.getByRole('button',{name:'Close'}).click()
+  await page.getByRole('button',{name:'Providers'}).click()
+  await expect(page.getByRole('heading',{name:'Provider connections'})).toBeVisible()
+  await expect(page.getByText('Keys and adapter URLs remain Edge Function secrets')).toBeVisible()
 })
 
 test('outbound schema is tenant-scoped and promotion is server controlled',async()=>{
@@ -114,4 +118,18 @@ test('outbound schema is tenant-scoped and promotion is server controlled',async
   expect(migration).toContain('create or replace function public.promote_outbound_prospect')
   expect(migration).toContain('public.create_lead_with_contact')
   expect(migration).toContain('OUTBOUND_PROSPECT_PROMOTED')
+})
+
+test('provider infrastructure keeps secrets server-side and enforces delivery safeguards',async()=>{
+  const root=resolve(import.meta.dirname,'..')
+  const migration=await readFile(resolve(root,'supabase/migrations/0026_outbound_provider_infrastructure.sql'),'utf8')
+  const worker=await readFile(resolve(root,'supabase/functions/outbound-worker/index.ts'),'utf8')
+  const adapter=await readFile(resolve(root,'supabase/functions/_shared/outbound.ts'),'utf8')
+  for(const table of ['outbound_provider_connections','outbound_jobs','outbound_message_deliveries','outbound_suppressions','outbound_provider_events'])expect(migration).toContain(`alter table public.${table} enable row level security`)
+  expect(migration).toContain("p.email_validation_status<>'VALID'")
+  expect(migration).toContain('recipient is suppressed')
+  expect(migration).toContain('for update skip locked')
+  expect(worker).toContain("requireSecret('OUTBOUND_CRON_SECRET')")
+  expect(adapter).toContain("OUTBOUND_RESEARCH_API_URL")
+  expect(adapter).not.toContain('VITE_')
 })
