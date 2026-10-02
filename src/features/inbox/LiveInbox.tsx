@@ -27,6 +27,9 @@ export function LiveInbox({organizationId,contacts,leads,onOpenLead,notify}:{org
   const [qualification,setQualification]=useState<QualificationResult|null>(null)
   const [mobileThread,setMobileThread]=useState(false)
   const [mobileDetails,setMobileDetails]=useState(false)
+  const [notesOpen,setNotesOpen]=useState(false)
+  const [noteDraft,setNoteDraft]=useState('')
+  const [noteSaving,setNoteSaving]=useState(false)
   const [sending,setSending]=useState(false)
   const [loading,setLoading]=useState(true)
   const [error,setError]=useState('')
@@ -36,6 +39,7 @@ export function LiveInbox({organizationId,contacts,leads,onOpenLead,notify}:{org
   const lead=leads.find(item=>item.contactId===selected?.contact_id)
   const draftKey=`${selectedId}:${noteMode?'note':'reply'}`
   const draft=drafts[draftKey]??''
+  const notes=messages.filter(message=>message.is_internal_note)
   const setDraft=(value:string)=>setDrafts(current=>({...current,[draftKey]:value}))
 
   const refresh=useCallback(async()=>{
@@ -63,7 +67,7 @@ export function LiveInbox({organizationId,contacts,leads,onOpenLead,notify}:{org
       .subscribe()
     return()=>{void client.removeChannel(channel)}
   },[organizationId,refresh,refreshMessages])
-  useEffect(()=>{const onBack=()=>{setMobileThread(false);setMobileDetails(false)};window.addEventListener('popstate',onBack);return()=>window.removeEventListener('popstate',onBack)},[])
+  useEffect(()=>{const onBack=()=>{setMobileThread(false);setMobileDetails(false);setNotesOpen(false)};window.addEventListener('popstate',onBack);return()=>window.removeEventListener('popstate',onBack)},[])
   useEffect(()=>{if(historyRef.current)historyRef.current.scrollTop=historyRef.current.scrollHeight},[selectedId,messages.length])
 
   const filtered=useMemo(()=>items.filter(item=>{
@@ -74,7 +78,7 @@ export function LiveInbox({organizationId,contacts,leads,onOpenLead,notify}:{org
     const read=reads.find(value=>value.conversation_id===item.id)?.last_read_at
     return Boolean(item.last_message_at&&(!read||item.last_message_at>read))
   }
-  const open=(id:string)=>{setSelectedId(id);setMessageLimit(50);setQualification(null);setNoteMode(false);setMobileThread(true);history.pushState({inbox:id},'','#app')}
+  const open=(id:string)=>{setSelectedId(id);setMessageLimit(50);setQualification(null);setNoteMode(false);setNotesOpen(false);setMobileThread(true);history.pushState({inbox:id},'','#app')}
   const changeStatus=async(status:ConversationRow['status'])=>{
     if(!selected)return
     try{await setConversationStatus(organizationId,selected.id,status);await refresh()}catch(reason){setError(reason instanceof Error?reason.message:'Unable to update status.')}
@@ -106,6 +110,7 @@ export function LiveInbox({organizationId,contacts,leads,onOpenLead,notify}:{org
     catch(reason){setError(reason instanceof Error?reason.message:'Unable to qualify conversation.')}
     finally{setQualifying(false)}
   }
+  const saveClientNote=async()=>{if(!selected||!noteDraft.trim()||noteSaving)return;setNoteSaving(true);setError('');try{await addConversationNote(organizationId,selected.id,noteDraft.trim());setNoteDraft('');await refreshMessages();notify('Team-only client note added')}catch(reason){setError(reason instanceof Error?reason.message:'Unable to save client note.')}finally{setNoteSaving(false)}}
 
   return <>
     <div className="page-heading"><div><p className="eyebrow">Persistent conversations</p><h1>Inbox</h1><p className="subheading">Customer conversations, notes, and ownership in one workspace.</p></div><button className="btn primary" onClick={()=>setCreating(true)}>＋ New conversation</button></div>
@@ -129,7 +134,7 @@ export function LiveInbox({organizationId,contacts,leads,onOpenLead,notify}:{org
         <div className="conversation-head">
           <button className="inbox-mobile-back" aria-label="Back to conversations" onClick={()=>{setMobileThread(false);setMobileDetails(false)}}>←</button>
           <div className="lead-cell"><div className="lead-avatar">{initials(contact?.name??'?')}</div><div><strong>{contact?.name??'Unknown contact'}</strong><small>{selected.channel} · {selected.status.toLowerCase()}</small></div></div>
-          <button className="inbox-mobile-details" onClick={()=>setMobileDetails(true)}>Details</button>
+          <div className="inbox-head-actions"><button className="inbox-notes-button" onClick={()=>setNotesOpen(true)}>Notes <span>{notes.length}</span></button><button className="inbox-mobile-details" onClick={()=>setMobileDetails(true)}>Details</button></div>
           <div className="live-inbox-header-controls"><select aria-label="Handling mode" value={selected.handling_mode} onChange={event=>void changeHandling(event.target.value as ConversationRow['handling_mode'])}><option value="HUMAN">Human handling</option><option value="AI">AI handling</option><option value="PAUSED">Paused</option></select><select aria-label="Conversation status" value={selected.status} onChange={event=>void changeStatus(event.target.value as ConversationRow['status'])}><option>OPEN</option><option>SNOOZED</option><option>CLOSED</option></select></div>
         </div>
         <div className="message-history" ref={historyRef} role="log" aria-label="Conversation history">
@@ -143,6 +148,7 @@ export function LiveInbox({organizationId,contacts,leads,onOpenLead,notify}:{org
         <div className="composer"><div className="live-inbox-modes"><button className={!noteMode?'active':''} onClick={()=>setNoteMode(false)}>Reply</button><button className={noteMode?'active':''} onClick={()=>setNoteMode(true)}>Internal note</button></div><p className="live-inbox-delivery">{noteMode?'Only teammates can see this note. Nothing is sent to the customer.':selected.channel==='WHATSAPP'?'Reply will use the connected WhatsApp channel.':'Internal record only — this channel has no outbound delivery configured.'}</p><MessageComposer id="live-inbox-draft" label={noteMode?'Internal note':'Reply'} value={draft} onChange={setDraft} onSend={()=>void send()} busy={sending} disabled={selected.status==='CLOSED'} action={noteMode?'Add note':selected.channel==='WHATSAPP'?'Send':'Record'} maxLength={noteMode?5000:2000} placeholder={noteMode?'Add context for your team…':'Write a reply…'}/></div>
       </div>:<div className="conversation-main inbox-empty-state"><strong>Select a conversation</strong><p>Choose an existing thread or start a new one.</p></div>}
       <aside className="conversation-context"><div className="context-head"><p className="eyebrow">Customer context</p><button className="inbox-mobile-details-close" onClick={()=>setMobileDetails(false)} aria-label="Close details">×</button></div>{contact?<><div className="context-profile"><div className="large-avatar">{initials(contact.name)}</div><h2>{contact.name}</h2><span>{contact.company||contact.email||'Contact'}</span></div>{lead&&<><div className="context-section"><small>INTEREST</small><strong>{lead.interest}</strong><span>{lead.stage} · {lead.score} score</span></div><div className="context-section"><small>SOURCE</small><strong>{lead.source||'Not recorded'}</strong></div><div className="context-section"><small>NEXT ACTION</small><strong>{lead.nextAction}</strong></div><button className="btn primary context-button" disabled={qualifying||!messages.length} onClick={()=>void qualify()}>{qualifying?'Qualifying…':'Qualify with AI'}</button>{qualification&&<div className="qualification-result"><strong>{qualification.score}/100 · {qualification.nextAction.replaceAll('_',' ')}</strong><p>{qualification.summary}</p><ul>{qualification.scoreReasons.map(reason=><li key={reason}>{reason}</li>)}</ul></div>}<button className="btn secondary context-button" onClick={()=>onOpenLead(lead.id)}>Open full profile →</button></>}</>:<p className="inbox-empty">No contact linked.</p>}</aside>
+      {notesOpen&&<aside className="client-notes-panel" aria-label="Client notes"><header><div><p className="eyebrow">Team only</p><h2>{contact?.name??'Client'} notes</h2></div><button aria-label="Close client notes" onClick={()=>setNotesOpen(false)}>×</button></header><div className="client-notes-list">{notes.map(note=><article key={note.id}><p>{note.body}</p><time>{new Date(note.created_at).toLocaleString()}</time></article>)}{!notes.length&&<div className="client-notes-empty"><strong>No notes yet</strong><p>Capture context, decisions and handoff details that customers should never see.</p></div>}</div><form onSubmit={event=>{event.preventDefault();void saveClientNote()}}><label htmlFor="client-note-draft">Add a private note</label><textarea id="client-note-draft" value={noteDraft} maxLength={5000} onChange={event=>setNoteDraft(event.target.value)} placeholder="What should the team remember about this client?"/><button className="btn primary" disabled={!noteDraft.trim()||noteSaving}>{noteSaving?'Saving…':'Add note'}</button></form></aside>}
     </div>
     {creating&&<NewConversation contacts={contacts} onClose={()=>setCreating(false)} onCreate={async(contactId,channel)=>{const created=await createConversation(organizationId,contactId,channel);const linkedLead=leads.find(item=>item.contactId===contactId);if(linkedLead)await runTriggeredAutomations(organizationId,linkedLead.id,'CONVERSATION_STARTED');setCreating(false);await refresh();open(created.id);notify('Conversation created')}}/>}
   </>

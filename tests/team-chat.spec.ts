@@ -26,11 +26,19 @@ test('team chat remains usable on a phone',async({page})=>{
   await page.setViewportSize({width:390,height:620})
   await page.getByRole('button',{name:'Open navigation'}).click()
   await page.locator('.sidebar nav').getByRole('button',{name:'Team Chat'}).click()
+  await page.locator('.team-chat-rooms').getByRole('button',{name:/general/}).click()
   await expect(page.getByLabel('Message your team')).toBeVisible()
   await page.getByLabel('Message your team').fill('Mobile update')
   await page.getByLabel('Message your team').press('Enter')
   await expect(page.locator('.team-chat-scroll')).toContainText('Mobile update')
   expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true)
+})
+
+test('team chat uses shared channels without direct-message controls',async({page})=>{
+  await page.locator('.sidebar nav').getByRole('button',{name:'Team Chat'}).click()
+  await expect(page.getByText('DIRECT MESSAGES')).toHaveCount(0)
+  await expect(page.getByText('direct messages for your team')).toHaveCount(0)
+  await expect(page.getByText('Team channels')).toBeVisible()
 })
 
 test('team chat migration requires membership and keeps writes server controlled',async()=>{

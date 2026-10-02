@@ -35,6 +35,7 @@ test('mobile inbox exposes the conversation list and switches threads',async({pa
   await expect(list.locator('.conversation')).toHaveCount(3)
   await list.getByRole('button',{name:/Aisha Njeri/}).click()
   await expect(page.locator('.conversation-main')).toContainText('Aisha Njeri')
+  await page.getByRole('button',{name:'Back to conversations'}).click()
   await list.getByRole('button',{name:/Brian Otieno/}).click()
   await expect(page.locator('.conversation-main')).toContainText('Brian Otieno')
 })

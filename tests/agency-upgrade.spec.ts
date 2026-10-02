@@ -27,11 +27,24 @@ test('team chat exposes room navigation and mobile back control',async({page})=>
   await page.setViewportSize({width:390,height:740})
   await page.getByRole('button',{name:'Open navigation'}).click()
   await page.locator('.sidebar nav').getByRole('button',{name:'Team Chat'}).click()
+  await page.locator('.team-chat-rooms').getByRole('button',{name:/general/}).click()
   await expect(page.getByRole('button',{name:'Back to conversations'})).toBeVisible()
   await page.getByRole('button',{name:'Back to conversations'}).click()
   await expect(page.getByText('CHANNELS',{exact:true})).toBeVisible()
   await page.getByRole('button',{name:'# general'}).click()
   await expect(page.getByLabel('Message your team')).toBeVisible()
+})
+
+test('inbox exposes a dedicated team-only client notes panel',async({page})=>{
+  await page.locator('.sidebar nav').getByRole('button',{name:'Inbox'}).click()
+  await page.locator('.conversation-list').getByRole('button',{name:/James Mwangi/}).click()
+  await page.getByRole('button',{name:/Notes/}).click()
+  const notes=page.getByRole('complementary',{name:'Client notes'})
+  await expect(notes).toBeVisible()
+  await expect(notes).toContainText('Team only')
+  await notes.getByLabel('Add a private note').fill('Prefers a morning follow-up.')
+  await notes.getByRole('button',{name:'Add note'}).click()
+  await expect(notes).toContainText('Prefers a morning follow-up.')
 })
 
 test('agency schema scopes operational records and private costs to authenticated roles',async()=>{
