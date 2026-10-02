@@ -295,6 +295,7 @@
 .lf-price .lf-button{width:100%;padding-inline:12px}
 .lf-price ul{list-style:none;margin:24px 0 0;padding:20px 0 0;border-top:1px solid var(--lf-line);font-size:12px;color:var(--lf-muted);line-height:2.6}
 .lf-pricing-grid+.lf-fine{margin-top:28px}
+.lf-plan-best{min-height:42px;margin:-10px 0 22px!important;color:#3f4b61!important;font-size:11px!important;font-weight:700;line-height:1.5}.lf-price ul{line-height:1.55}.lf-price li{padding:7px 0}.lf-plan-capacity{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:20px}.lf-plan-capacity span{padding:8px;border-radius:7px;background:#f3f4f9;color:#596277;font-size:10px}.lf-package-matrix{display:grid;grid-template-columns:minmax(220px,.45fr) minmax(0,1fr);gap:40px;margin-top:50px;padding:30px;border:1px solid var(--lf-line);border-radius:18px;background:#fff}.lf-package-matrix>div:first-child>p:last-child{color:var(--lf-muted);font-size:13px;line-height:1.6}.lf-package-table{overflow-x:auto;border:1px solid var(--lf-line);border-radius:12px}.lf-package-table table{width:100%;min-width:620px;border-collapse:collapse}.lf-package-table th,.lf-package-table td{padding:12px 14px;border-bottom:1px solid var(--lf-line);font-size:11px;text-align:center}.lf-package-table th:first-child,.lf-package-table td:first-child{text-align:left}.lf-package-table thead th{background:#f5f6fa;font-size:9px;text-transform:uppercase;letter-spacing:.08em}.lf-package-table tbody td:not(:first-child){color:var(--lf-accent);font-weight:700}.lf-package-table .is-unavailable{color:#a5abb6!important}.lf-provider-note{display:flex;gap:25px;margin-top:22px;padding:18px 20px;border:1px dashed #cfd5e1;border-radius:13px;background:#f8f9fc}.lf-provider-note strong{min-width:230px;font-size:12px}.lf-provider-note p{margin:0;color:var(--lf-muted);font-size:11px;line-height:1.6}
 .lf-faq{display:grid;grid-template-columns:.7fr 1fr;gap:100px;align-items:start}
 .lf-faq-intro{position:sticky;top:125px}
 .lf-faq-intro p:last-child{font-size:15px;color:var(--lf-muted);margin-top:24px}
@@ -335,6 +336,7 @@
   .lf-sticky-story{gap:35px}.lf-inbox-demo{grid-template-columns:145px 1fr 180px}
 }
 @media(max-width:900px){
+  .lf-site{padding-top:74px}.lf-nav-sentinel{display:none}.lf-nav{position:fixed;left:0;right:0;top:0;width:100%;box-shadow:0 5px 22px #17203314}.lf-nav-compact .lf-nav-inner{min-height:64px}
   .lf-site .lf-section{padding-block:80px}.lf-site .lf-container,.lf-site .lf-section{padding-inline:28px}
   .lf-site .lf-desktop-links{display:none}.lf-menu-button{display:block}.lf-nav-inner{min-height:74px;padding:12px 24px}
   .lf-site .lf-mobile-menu:not([hidden]){display:flex;flex-direction:column;gap:0;padding:12px 24px 24px;border-top:1px solid var(--lf-line);animation:lf-enter var(--lf-normal) both}
@@ -349,7 +351,7 @@
   .lf-split-heading{gap:35px}.lf-inbox-demo{grid-template-columns:150px 1fr}.lf-inbox-context{grid-column:1/-1;border-left:0;border-top:1px solid #dce5df;display:flex;align-items:center;flex-wrap:wrap;gap:12px}.lf-inbox-context .lf-kicker{margin:0}.lf-inbox-context .lf-fine{display:none}
   .lf-automation-demo{gap:25px}.lf-timeline>div{gap:10px}.lf-timeline p{font-size:12px}
   .lf-setup-path{grid-template-columns:repeat(3,1fr);gap:30px}.lf-industries{gap:35px}
-  .lf-security,.lf-faq{gap:40px}.lf-faq-intro{position:static}.lf-pricing-grid{gap:10px}.lf-price{padding:28px 16px}.lf-price-value{font-size:27px}
+  .lf-security,.lf-faq{gap:40px}.lf-faq-intro{position:static}.lf-pricing-grid{gap:10px}.lf-price{padding:28px 16px}.lf-price-value{font-size:27px}.lf-package-matrix{grid-template-columns:1fr;gap:20px}
   .lf-footer{grid-template-columns:repeat(4,1fr);gap:26px}.lf-footer>div:first-child{grid-column:1/-1}
 }
 @media(max-width:600px){
@@ -391,7 +393,7 @@
   .lf-comparison-list{grid-template-columns:1fr;gap:18px}.lf-comparison-list>p{font-size:16px}.lf-comparison-switch button{font-size:12px;padding:10px 14px}
   .lf-integration-list{grid-template-columns:1fr}.lf-integration-list p{font-size:13px}
   .lf-security,.lf-faq{grid-template-columns:1fr;gap:32px}.lf-security>div>p:not(.lf-kicker){font-size:14px}
-  .lf-pricing-grid{grid-template-columns:1fr;gap:26px}.lf-price{padding:30px}.lf-price-value{font-size:34px}
+  .lf-pricing-grid{grid-template-columns:1fr;gap:26px}.lf-price{padding:30px}.lf-price-value{font-size:34px}.lf-plan-best{min-height:0}.lf-package-matrix{margin-top:36px;padding:20px}.lf-provider-note{display:block}.lf-provider-note strong{display:block;margin-bottom:7px}
   .lf-faq-intro p:last-child{font-size:14px}.lf-accordion h3 button{font-size:13px}
   .lf-final .lf-section{padding-block:65px}.lf-final h2{font-size:33px}.lf-final-message{gap:12px;padding:12px 14px;font-size:9px}.lf-final p{font-size:14px}
   .lf-footer{grid-template-columns:1fr 1fr;padding-top:45px;padding-bottom:45px;gap:32px}.lf-info-dialog{padding:28px}.lf-info-dialog h2{font-size:27px}

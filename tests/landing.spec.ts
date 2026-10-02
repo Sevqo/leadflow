@@ -162,6 +162,20 @@ test('mobile navigation opens, closes and preserves accessible focus', async ({ 
   await expect(page.getByRole('navigation', { name: 'Mobile navigation' })).toBeHidden()
 })
 
+test('mobile website header stays available and pricing mirrors workspace packages', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 })
+  await page.goto('/')
+  const header = page.locator('.lf-nav')
+  await expect(header).toBeVisible()
+  await page.locator('#pricing').scrollIntoViewIfNeeded()
+  await expect(header).toBeVisible()
+  await expect.poll(async () => Math.round((await header.boundingBox())?.y ?? -1)).toBe(0)
+  await expect(page.getByRole('heading', { name: 'What each package covers' })).toBeVisible()
+  await expect(page.locator('#pricing')).toContainText('25 knowledge items')
+  await expect(page.locator('#pricing')).toContainText('AI agents and operational run centre')
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBeTruthy()
+})
+
 test('reduced motion keeps scenes stable but manually explorable', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' })
   await page.goto('/')
