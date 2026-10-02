@@ -103,6 +103,18 @@ test('system architecture explains each connected stage', async ({ page }, info)
   await system.screenshot({ path: info.outputPath('technology.png'), animations: 'disabled' })
 })
 
+test('public website explains the complete professional workspace', async ({ page }) => {
+  await page.goto('/')
+  await page.locator('#workspace').scrollIntoViewIfNeeded()
+  await expect(page.getByRole('heading',{name:'Customer growth and delivery. One professional operating system.'})).toBeVisible()
+  for(const tab of ['Acquire','Deliver','Automate','Operate'])await page.getByRole('tab',{name:new RegExp(tab)}).click()
+  await expect(page.getByText('Team chat',{exact:true})).toBeVisible()
+  await expect(page.getByText('Costs & billing',{exact:true})).toBeVisible()
+  await page.getByRole('tab',{name:/Deliver/}).click()
+  await expect(page.getByText('Client portal',{exact:true})).toBeVisible()
+  await expect(page.getByText('Systems',{exact:true})).toBeVisible()
+})
+
 test('FAQ, separate legal pages and keyboard controls', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' })
   await page.goto('/')

@@ -28,6 +28,27 @@ test('mobile workspace drawer scrolls independently to settings',async({page})=>
   await expect(page.getByRole('heading',{name:'Settings'})).toBeVisible()
 })
 
+test('mobile application header stays fixed above every workspace page',async({page})=>{
+  const header=page.locator('.topbar')
+  await expect(header).toBeVisible()
+  await expect.poll(()=>header.evaluate(element=>getComputedStyle(element).position)).toBe('fixed')
+  const before=await header.boundingBox()
+  await page.evaluate(()=>window.scrollTo(0,900))
+  const after=await header.boundingBox()
+  expect(Math.round(after?.y??-1)).toBe(Math.round(before?.y??-2))
+  await expect(page.getByRole('button',{name:'Open navigation'})).toBeVisible()
+})
+
+test('application shell fits phone, tablet and desktop widths',async({page})=>{
+  for(const viewport of [{width:320,height:700},{width:430,height:800},{width:768,height:850},{width:1024,height:800},{width:1440,height:900}]){
+    await page.setViewportSize(viewport)
+    await page.reload()
+    await expect(page.locator('.topbar')).toBeVisible()
+    expect(await page.evaluate(()=>document.documentElement.scrollWidth)).toBeLessThanOrEqual(viewport.width)
+    await expect(page.getByRole('heading',{name:/Good morning/})).toBeVisible()
+  }
+})
+
 test('mobile inbox exposes the conversation list and switches threads',async({page})=>{
   await openPage(page,'Inbox')
   const list=page.locator('.conversation-list')

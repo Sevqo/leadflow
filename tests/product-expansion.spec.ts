@@ -4,7 +4,7 @@ test.beforeEach(async({page})=>{await page.goto('/#app');await page.evaluate(()=
 
 test('setup checklist and quick actions lead to real workflows',async({page})=>{
   await expect(page.getByRole('heading',{name:'Finish your workspace'})).toBeVisible()
-  await page.getByRole('button',{name:'＋ New'}).click()
+  await page.getByRole('button',{name:'New',exact:true}).click()
   await page.getByRole('dialog',{name:'Quick actions'}).getByRole('button',{name:/New lead/}).click()
   await expect(page.getByRole('dialog',{name:/Add a lead/})).toBeVisible()
 })
